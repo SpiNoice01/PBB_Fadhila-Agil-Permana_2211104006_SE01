@@ -4,12 +4,15 @@
 <li> NIM : 2211104006
 <li> Kelas : SE061
 
-##
+
 <br> 
 
-![image](asset/240sx.png)
+# 
 
+![image](asset/240sx.png)
+#
 <br>
+
 
 # ✅ Bukti Install Git
 <li>Ini adalah bukti pengecekan git melalui CMD
