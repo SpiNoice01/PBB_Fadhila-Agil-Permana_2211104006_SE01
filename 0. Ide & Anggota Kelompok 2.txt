@@ -1,0 +1,8 @@
+KELOMPOK 2
+
+IDE : Aplikasi pemesanan dan layanan transportasi.
+Anggota : 1. Fadhila Agil Permana (2211104006) - Ketua
+	  2. Chayla Ravanelly Quintitawati(2211104082)
+	  3. Rezky Pratiwi (2211104029)
+	  4. Mohammad Naufal Shofan Ma'ruf (22111040400)
+	  5. Muhammad Rizaldy Akbar (2211104065)
