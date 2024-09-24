@@ -116,11 +116,6 @@ kalian, minimal 5 widget!! (bebas, buatlah sekreatif mungkin).
 * Ini Adalah Tampilannya 
 
 <p align="center">
-  <img src="assetMD/biodataDisplay.png" alt="Biodata Display" />
+  <img src="assetMD/Biodata.png" alt="Biodata Display" />
 </p>
 
-* Ini adalah Snap Dari Sourcecode nya
-
-<p align="center">
-  <img src="assetMD/sourceCode.png" alt="Source Code Snapshot" />
-</p>
