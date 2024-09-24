@@ -7,6 +7,7 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -30,27 +31,45 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    var center = Center(contrainer: Container());
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.red,
-        title: Text(widget.title),
+        backgroundColor: Colors.amber,
+        title: const Align(
+          alignment: Alignment.center,
+          child: Text('Pertemuan Praktikum 2'),
+        ),
       ),
-      body: center,
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 50),
+        child: Column(
+          children: [
+            Container(
+              margin: const EdgeInsets.all(10),
+              color: Colors.red,
+              padding: const EdgeInsets.all(10),
+              height: 100,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 50),
+              child: Container(
+                color: Colors.yellow,
+                height: 100,
+              ),
+            ),
+            const Center(
+              child: Text('Ini adalah widget center'),
+            ),
+            Row(
+              children: const [
+                Icon(Icons.add),
+                SizedBox(width: 10),
+                Text('Tambah widget'),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
