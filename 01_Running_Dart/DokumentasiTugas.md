@@ -24,7 +24,7 @@ Dart adalah bahasa yang dioptimalkan untuk klien untuk mengembangkan aplikasi ya
 </ol>
 
 <p align="center">
-  <img src="assetMD/dart.svg" alt="Dart Logo" />
+  <img src="assetMD/Dart.svg" alt="Dart Logo" />
 </p>
 
 <li>Apa itu Flutter ?
