@@ -24,7 +24,7 @@ void sayHelloWithDefaultName([String name = 'John']) {
 }
 
 // function with named parameter
-void sayHelloWithNameAndAge({String name, int age}) {
+void sayHelloWithNameAndAge({String? name, int? age}) {
   print('Hello $name, you are $age years old');
 }
 

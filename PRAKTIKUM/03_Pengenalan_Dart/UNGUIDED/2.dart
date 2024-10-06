@@ -20,10 +20,8 @@ void main() {
               stars += '* ';
             }
           }
-          if (stars != null) {
-            print(stars);
-          }
-        }
+          print(stars);
+                }
       } else {
         print('Nilai n harus lebih besar dari 0');
       }
