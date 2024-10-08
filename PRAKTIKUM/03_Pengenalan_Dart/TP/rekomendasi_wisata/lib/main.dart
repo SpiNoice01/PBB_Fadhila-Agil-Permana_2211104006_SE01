@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
           title: const Text('Wisata Bandung'),
           centerTitle: true,
         ),
-        backgroundColor: const Color(0xFF23272A),
+        backgroundColor: const Color.fromARGB(255, 56, 152, 226),
         body: Center(
           child: Container(
             color: Colors.blue,
