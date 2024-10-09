@@ -54,8 +54,8 @@ class MyApp extends StatelessWidget {
                   onPressed: () async {
                     const url =
                         'https://www.tripadvisor.com/AttractionProductReview-g1066456-d26159989-TOKYO_PREMIUM_CAR_TOUR_Daikoku_PA_Japan_s_Amazing_JDM_Car_Meet-Shibuya_Tokyo_Toky.html';
-                    if (await canLaunch(url)) {
-                      await launch(url);
+                    if (await canLaunchUrl(url as Uri)) {
+                      await launchUrl(url as Uri);
                     } else {
                       throw 'Could not launch $url';
                     }
