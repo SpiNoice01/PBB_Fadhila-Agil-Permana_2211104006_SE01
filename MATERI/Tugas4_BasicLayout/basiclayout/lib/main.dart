@@ -58,7 +58,7 @@ class MyApp extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Container(
-                margin: const EdgeInsets.only(left: 40, top: 250),
+                margin: const EdgeInsets.only(left: 40),
                 width: 200,
                 height: 200,
                 decoration: BoxDecoration(
