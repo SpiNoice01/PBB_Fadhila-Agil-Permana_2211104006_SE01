@@ -9,19 +9,25 @@ class Formulir extends StatefulWidget {
 }
 
 class FormulirState extends State<Formulir> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('User Form'),
+        title: const Text('Formulir'),
+        automaticallyImplyLeading: false,
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: Center(
+        child: Form(
+          key: _formKey,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               TextFormField(
+                controller: _nameController,
                 keyboardType: TextInputType.name,
                 decoration: const InputDecoration(
                   hintText: 'Enter your name',
@@ -32,9 +38,16 @@ class FormulirState extends State<Formulir> {
                 style: GoogleFonts.comicNeue(
                   fontSize: 20,
                 ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your name';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 20),
               TextFormField(
+                controller: _passwordController,
                 keyboardType: TextInputType.text,
                 obscureText: true,
                 decoration: const InputDecoration(
@@ -46,10 +59,29 @@ class FormulirState extends State<Formulir> {
                 style: GoogleFonts.comicNeue(
                   fontSize: 20,
                 ),
+                validator: (value) {
+                  if (value == null || value.length < 8) {
+                    return 'Please enter a valid password';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.amber,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Form is valid')),
+                    );
+                    Navigator.of(context).pop();
+                  }
+                },
                 child: const Text('Submit'),
               ),
             ],
