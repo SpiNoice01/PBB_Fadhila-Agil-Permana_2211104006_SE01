@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:navnot/models/product.dart';
 
 class MyPage extends StatelessWidget {
