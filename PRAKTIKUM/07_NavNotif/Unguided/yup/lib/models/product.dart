@@ -1,12 +1,12 @@
 // ignore: file_names
-class Product {
+class Produk {
   final int id;
   final String nama;
   final double harga;
   final String gambar;
   final String deskripsi;
 
-  Product({
+  Produk({
     required this.id,
     required this.nama,
     required this.harga,
@@ -15,8 +15,8 @@ class Product {
   });
 
   // KONVERSI JSON KE PRODUK KITA
-  factory Product.fromJson(Map<String, dynamic> json) {
-    return Product(
+  factory Produk.fromJson(Map<String, dynamic> json) {
+    return Produk(
       id: json['id'] as int,
       nama: json['nama'] as String,
       harga: json['harga'].toDouble(),

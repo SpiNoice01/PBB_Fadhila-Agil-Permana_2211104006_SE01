@@ -24,17 +24,21 @@ class _MyAppState extends State<MyApp> {
       appBar: AppBar(
         title: const Text('Home'),
       ),
-      body: Container(
-        alignment: Alignment.center,
-        child: ElevatedButton(
-          child: const Text('Open route'),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const Pageku()),
-            );
-          },
-        ),
+      body: Row(
+        children: [
+          Container(
+            alignment: Alignment.center,
+            child: ElevatedButton(
+              child: const Text('Open route'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Pageku()),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
