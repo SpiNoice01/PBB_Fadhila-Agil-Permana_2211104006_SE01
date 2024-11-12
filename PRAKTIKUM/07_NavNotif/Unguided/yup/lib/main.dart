@@ -108,7 +108,7 @@ class MyApp extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12.0),
                             child: Image.network(
                               product.gambar,
-                              height: 100,
+                              height: 50,
                               width: double.infinity,
                               fit: BoxFit.cover,
                             ),
@@ -117,21 +117,21 @@ class MyApp extends StatelessWidget {
                           Text(
                             product.nama,
                             style: const TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold),
+                                fontSize: 10, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             product.deskripsi,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                                fontSize: 12, color: Colors.grey[600]),
+                            style:
+                                TextStyle(fontSize: 4, color: Colors.grey[600]),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             'Harga: ${product.harga}',
                             style: const TextStyle(
-                                fontSize: 14,
+                                fontSize: 4,
                                 fontWeight: FontWeight.w600,
                                 color: Colors.blueAccent),
                           ),
