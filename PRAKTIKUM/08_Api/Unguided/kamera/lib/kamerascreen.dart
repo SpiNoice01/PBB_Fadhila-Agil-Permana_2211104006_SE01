@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -41,17 +42,24 @@ class _KameraState extends State<Kamera> {
       ),
       body: Column(
         children: [
+          const SizedBox(height: 100),
           Center(
-            child: Container(
+            child: DottedBorder(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                  border: Border.all(),
-                  borderRadius: BorderRadius.circular(10)),
-              width: 300,
-              height: 300,
-              child: _image == null
-                  ? const Icon(Icons.image)
-                  : Image.file(_image!),
+              borderType: BorderType.RRect,
+              radius: const Radius.circular(10),
+              color: const Color.fromARGB(255, 148, 148, 148),
+              strokeWidth: 10,
+              child: SizedBox(
+                width: 300,
+                height: 300,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(5),
+                  child: _image == null
+                      ? const Icon(Icons.image, size: 100)
+                      : Image.file(_image!, fit: BoxFit.cover),
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 50),
@@ -59,8 +67,10 @@ class _KameraState extends State<Kamera> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(
-                width: 150,
+                width: 120,
+                height: 50,
                 child: FloatingActionButton(
+                  backgroundColor: Colors.amberAccent,
                   onPressed: _pickImageFromCamera,
                   tooltip: 'Pick Image from Camera',
                   child: const Text("Pick From Cam"),
@@ -68,8 +78,10 @@ class _KameraState extends State<Kamera> {
               ),
               const Padding(padding: EdgeInsets.all(10)),
               SizedBox(
-                width: 150,
+                width: 140,
+                height: 50,
                 child: FloatingActionButton(
+                  backgroundColor: Colors.amberAccent,
                   onPressed: _pickImageFromGallery,
                   tooltip: 'Pick Image from Gallery',
                   child: const Text('Pick From Gallery'),
