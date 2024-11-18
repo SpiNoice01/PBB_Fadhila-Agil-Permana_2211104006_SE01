@@ -1,0 +1,10 @@
+1. Awalan (Install2)
+2. Pengenalan 
+3. Dart Awal
+4. UI
+5. Sliver list View
+6. Package
+7. Nav & Notif
+8. Asistensi tugas besar -
+9. camera
+10. Data Storage ( pertanyaan SQL )
