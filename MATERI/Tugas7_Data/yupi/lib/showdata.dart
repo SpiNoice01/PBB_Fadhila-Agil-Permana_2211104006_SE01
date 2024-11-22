@@ -13,7 +13,7 @@ class SecondScreen extends StatelessWidget {
         centerTitle: true,
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
-        title: Text('isian Data'),
+        title: const Text('isian Data'),
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _dbHelper.queryAllRows(),

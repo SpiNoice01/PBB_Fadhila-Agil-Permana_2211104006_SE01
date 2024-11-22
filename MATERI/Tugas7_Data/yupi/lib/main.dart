@@ -126,6 +126,12 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               SizedBox(height: 20),
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 67, 136, 255),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     await _dbHelper.insert(
@@ -139,16 +145,26 @@ class _MyHomePageState extends State<MyHomePage> {
                     );
                   }
                 },
-                child: Text('Save to Database'),
+                child: Text(
+                  'Save to Database',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
                 onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => SecondScreen()),
                   );
                 },
-                child: Text('Show All Data'),
+                child: Text('Show All Data',
+                    style: TextStyle(color: Colors.white)),
               ),
             ],
           ),
