@@ -86,7 +86,8 @@ class _IsiDatabaseState extends State<IsiDatabase> {
           );
         });
     @override
-    Widget(BuildContext context) {
+    // ignore: unused_element
+    Widget build(BuildContext context) {
       return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.amber,
@@ -109,10 +110,11 @@ class _IsiDatabaseState extends State<IsiDatabase> {
                 decoration: const InputDecoration(labelText: 'Description'),
               ),
             ),
-            ElevatedButton(onPressed: _addData, child: Text("Add Data")),
-            ElevatedButton(onPressed: _addData, child: Text("Add Data")),
-            Expanded(child: ListView.builder
-              (itemCount: _dbData.length, itemBuilder: (context, index) {
+            ElevatedButton(onPressed: _addData, child: const Text("Add Data")),
+            ElevatedButton(onPressed: _addData, child: const Text("Add Data")),
+            Expanded(child: ListView.builder(
+              itemCount: _dbData.length, 
+              itemBuilder: (context, index) {
                 final item = _dbData[index];
                 return ListTile(
                   title: Text(item['title']),
@@ -129,9 +131,11 @@ class _IsiDatabaseState extends State<IsiDatabase> {
                         onPressed: () => deleteData(item['id']),
                       ),
                     ],
-                  );
-                  },),
-        )],
+                  ),
+                );
+              },
+            )),
+          ],
         ),
       );
     }
