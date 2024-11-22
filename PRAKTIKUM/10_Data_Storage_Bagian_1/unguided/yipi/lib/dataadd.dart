@@ -51,8 +51,9 @@ class _DataAddPageState extends State<DataAddPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         backgroundColor: Colors.amber,
-        title: const Text('Add Data'),
+        title: const Text('Tambah Biodata Mahasiswa'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
