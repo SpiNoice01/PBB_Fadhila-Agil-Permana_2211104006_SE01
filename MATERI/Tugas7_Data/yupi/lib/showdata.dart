@@ -10,7 +10,10 @@ class SecondScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('All Data'),
+        centerTitle: true,
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+        title: Text('isian Data'),
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _dbHelper.queryAllRows(),
@@ -26,9 +29,12 @@ class SecondScreen extends StatelessWidget {
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
                 final row = snapshot.data![index];
-                return ListTile(
-                  title: Text(row['nama']),
-                  subtitle: Text('NIM: ${row['nim']}, Kelas: ${row['kelas']}'),
+                return Card(
+                  child: ListTile(
+                    title: Text(row['nama']),
+                    subtitle:
+                        Text('NIM: ${row['nim']}, Kelas: ${row['kelas']}'),
+                  ),
                 );
               },
             );

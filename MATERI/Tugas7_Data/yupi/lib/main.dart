@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Database Example',
+      title: 'Contoh Database',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -56,7 +56,10 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Database Example'),
+        centerTitle: true,
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+        title: Text('Contoh Database'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -64,35 +67,62 @@ class _MyHomePageState extends State<MyHomePage> {
           key: _formKey,
           child: Column(
             children: <Widget>[
-              TextFormField(
-                controller: _namaController,
-                decoration: InputDecoration(labelText: 'Nama'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter nama';
-                  }
-                  return null;
-                },
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: TextFormField(
+                  controller: _namaController,
+                  decoration: InputDecoration(
+                    labelText: 'Nama',
+                    border: const OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey),
+                    ),
+                    prefixIcon: const Icon(Icons.person),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter nama';
+                    }
+                    return null;
+                  },
+                ),
               ),
-              TextFormField(
-                controller: _nimController,
-                decoration: InputDecoration(labelText: 'NIM'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter NIM';
-                  }
-                  return null;
-                },
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: TextFormField(
+                  controller: _nimController,
+                  decoration: InputDecoration(
+                    labelText: 'NIM',
+                    border: const OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey),
+                    ),
+                    prefixIcon: const Icon(Icons.numbers),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter NIM';
+                    }
+                    return null;
+                  },
+                ),
               ),
-              TextFormField(
-                controller: _kelasController,
-                decoration: InputDecoration(labelText: 'Kelas'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter kelas';
-                  }
-                  return null;
-                },
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: TextFormField(
+                  controller: _kelasController,
+                  decoration: InputDecoration(
+                    labelText: 'Kelas',
+                    border: const OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey),
+                    ),
+                    prefixIcon: const Icon(Icons.school),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter kelas';
+                    }
+                    return null;
+                  },
+                ),
               ),
               SizedBox(height: 20),
               ElevatedButton(
