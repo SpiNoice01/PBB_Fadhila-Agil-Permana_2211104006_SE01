@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1048434264156",
+    "project_id": "praktikum-fcm-agil",
+    "storage_bucket": "praktikum-fcm-agil.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1048434264156:android:87e61681c83ad5de4dfe99",
+        "android_client_info": {
+          "package_name": "com.example.unguided"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9DnEuPji4GqPYkO-1Pg9prgs1hfttBTg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
