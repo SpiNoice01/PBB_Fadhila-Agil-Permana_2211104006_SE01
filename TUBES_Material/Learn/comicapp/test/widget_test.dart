@@ -15,7 +15,8 @@ void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await Firebase.initializeApp();
-    await tester.pumpWidget(MyApp(app: Firebase.app()));
+    final firebaseApp = await Firebase.initializeApp();
+    await tester.pumpWidget(MyApp(app: firebaseApp));
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);
