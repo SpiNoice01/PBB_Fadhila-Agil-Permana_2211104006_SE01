@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:apites/services/mangadex_services.dart';
 import 'package:apites/pages/detail_screen.dart';
@@ -6,12 +8,11 @@ class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _MainScreenState createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
-  List<dynamic> mangaList = [];
+  List<Map<String, dynamic>> mangaList = [];
   bool isLoading = true;
 
   @override
@@ -31,8 +32,7 @@ class _MainScreenState extends State<MainScreen> {
       setState(() {
         isLoading = false;
       });
-      // ignore: avoid_print
-      print(e); // Print error for debugging
+      print("Error fetching manga list: $e");
     }
   }
 
@@ -47,28 +47,29 @@ class _MainScreenState extends State<MainScreen> {
               itemBuilder: (context, index) {
                 final manga = mangaList[index];
 
-                // Extract manga details safely
+                // Extract manga details
                 final title =
                     manga['attributes']['title']?['en'] ?? "Unknown Title";
                 final desc = manga['attributes']['description']?['en'] ??
                     "No Description";
-                final coverArt = manga['relationships']?.firstWhere(
-                    (rel) => rel['type'] == 'cover_art',
-                    orElse: () => null)?['attributes']?['fileName'];
-                final imageUrl = coverArt != null
-                    ? "https://api.mangadex.org/cover/${['id']}"
-                    : "https://via.placeholder.com/150";
+                final imageUrl =
+                    manga['coverUrl'] ?? "https://via.placeholder.com/150";
 
                 return Card(
                   child: ListTile(
                     leading: Image.network(
                       imageUrl,
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return const Icon(Icons.image_not_supported);
                       },
                     ),
-                    title: Text(title),
-                    subtitle: Text(desc),
+                    title: Text(title,
+                        maxLines: 1, overflow: TextOverflow.ellipsis),
+                    subtitle: Text(desc,
+                        maxLines: 2, overflow: TextOverflow.ellipsis),
                     onTap: () {
                       Navigator.push(
                         context,
