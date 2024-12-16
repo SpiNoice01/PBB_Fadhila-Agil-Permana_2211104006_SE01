@@ -6,9 +6,9 @@ class MangaDexService {
 
   // Get list of Manga
   static Future<List<Map<String, dynamic>>> getMangaList(
-      {required String title}) async {
-    final response = await http
-        .get(Uri.parse("$baseUrl/manga?title=$title&includes[]=cover_art"));
+      {required String title, int limit = 10, int offset = 0}) async {
+    final response = await http.get(Uri.parse(
+        "$baseUrl/manga?title=$title&includes[]=cover_art&limit=$limit&offset=$offset"));
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       final mangaList = (data['data'] as List<dynamic>)
@@ -53,6 +53,7 @@ class MangaDexService {
     }
   }
 
+  // Get manga details
   static Future<Map<String, dynamic>> getMangaDetails(String mangaId) async {
     final response = await http
         .get(Uri.parse('$baseUrl/manga/$mangaId?includes[]=cover_art'));
@@ -90,5 +91,21 @@ class MangaDexService {
     }
 
     throw Exception('Failed to load manga details: ${response.reasonPhrase}');
+  }
+
+  // Get manga chapters
+  static Future<List<Map<String, dynamic>>> getMangaChapters(
+      String mangaId) async {
+    final response = await http.get(Uri.parse(
+        '$baseUrl/manga/$mangaId/feed?translatedLanguage[]=en&order[chapter]=asc'));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final chapterList = (data['data'] as List<dynamic>)
+          .cast<Map<String, dynamic>>(); // Cast to List<Map<String, dynamic>>
+      return chapterList;
+    } else {
+      throw Exception('Failed to load manga chapters');
+    }
   }
 }

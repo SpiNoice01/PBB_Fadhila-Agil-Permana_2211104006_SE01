@@ -1,7 +1,6 @@
-// ignore_for_file: library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
 import 'package:apites/services/mangadex_services.dart';
+import 'package:apites/pages/read_manga.dart'; // Import the new read manga screen
 
 class DetailScreen extends StatefulWidget {
   final String mangaId;
@@ -59,20 +58,32 @@ class _DetailScreenState extends State<DetailScreen> {
                             errorBuilder: (context, error, stackTrace) {
                               return const Icon(Icons.image_not_supported);
                             },
-                          )
-                        else
-                          const Icon(Icons.image_not_supported),
+                          ),
                         const SizedBox(height: 16),
                         Text(
                           mangaDetails!['attributes']['title']?['en'] ??
                               "Unknown Title",
-                          style: Theme.of(context).textTheme.bodyMedium,
+                          style: Theme.of(context).textTheme.bodyLarge,
                         ),
                         const SizedBox(height: 8),
                         Text(
                           mangaDetails!['attributes']['description']?['en'] ??
                               "No Description",
                           style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ReadMangaScreen(
+                                  mangaId: widget.mangaId,
+                                ),
+                              ),
+                            );
+                          },
+                          child: const Text('Read Manga'),
                         ),
                       ],
                     ),

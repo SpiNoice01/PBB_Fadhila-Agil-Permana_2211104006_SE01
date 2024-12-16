@@ -1,8 +1,8 @@
-// ignore_for_file: library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
 import 'package:apites/services/mangadex_services.dart';
 import 'package:apites/pages/detail_screen.dart';
+import 'package:apites/pages/search_manga.dart'; // Import the new search screen
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -12,77 +12,102 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  List<Map<String, dynamic>> mangaList = [];
-  bool isLoading = true;
+  static const _pageSize = 10;
+  final PagingController<int, Map<String, dynamic>> _pagingController =
+      PagingController(firstPageKey: 0);
 
   @override
   void initState() {
     super.initState();
-    fetchManga();
+    _pagingController.addPageRequestListener((pageKey) {
+      _fetchPage(pageKey);
+    });
   }
 
-  Future<void> fetchManga() async {
+  Future<void> _fetchPage(int pageKey) async {
     try {
-      final mangas = await MangaDexService.getMangaList(title: "");
-      setState(() {
-        mangaList = mangas;
-        isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
-      print("Error fetching manga list: $e");
+      final newItems = await MangaDexService.getMangaList(
+        title: "",
+        limit: _pageSize,
+        offset: pageKey,
+      );
+      final isLastPage = newItems.length < _pageSize;
+      if (isLastPage) {
+        _pagingController.appendLastPage(newItems);
+      } else {
+        final nextPageKey = pageKey + newItems.length;
+        _pagingController.appendPage(newItems, nextPageKey);
+      }
+    } catch (error) {
+      _pagingController.error = error;
     }
+  }
+
+  @override
+  void dispose() {
+    _pagingController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Manga List')),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: mangaList.length,
-              itemBuilder: (context, index) {
-                final manga = mangaList[index];
+      appBar: AppBar(
+        title: const Text('Manga List'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SearchScreen(),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+      body: PagedListView<int, Map<String, dynamic>>(
+        pagingController: _pagingController,
+        builderDelegate: PagedChildBuilderDelegate<Map<String, dynamic>>(
+          itemBuilder: (context, manga, index) {
+            // Extract manga details
+            final title =
+                manga['attributes']['title']?['en'] ?? "Unknown Title";
+            final desc =
+                manga['attributes']['description']?['en'] ?? "No Description";
+            final imageUrl =
+                manga['coverUrl'] ?? "https://via.placeholder.com/150";
 
-                // Extract manga details
-                final title =
-                    manga['attributes']['title']?['en'] ?? "Unknown Title";
-                final desc = manga['attributes']['description']?['en'] ??
-                    "No Description";
-                final imageUrl =
-                    manga['coverUrl'] ?? "https://via.placeholder.com/150";
-
-                return Card(
-                  child: ListTile(
-                    leading: Image.network(
-                      imageUrl,
-                      width: 50,
-                      height: 50,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return const Icon(Icons.image_not_supported);
-                      },
+            return Card(
+              child: ListTile(
+                leading: Image.network(
+                  imageUrl,
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Icon(Icons.image_not_supported);
+                  },
+                ),
+                title:
+                    Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
+                subtitle:
+                    Text(desc, maxLines: 2, overflow: TextOverflow.ellipsis),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DetailScreen(mangaId: manga['id']),
                     ),
-                    title: Text(title,
-                        maxLines: 1, overflow: TextOverflow.ellipsis),
-                    subtitle: Text(desc,
-                        maxLines: 2, overflow: TextOverflow.ellipsis),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              DetailScreen(mangaId: manga['id']),
-                        ),
-                      );
-                    },
-                  ),
-                );
-              },
-            ),
+                  );
+                },
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }
