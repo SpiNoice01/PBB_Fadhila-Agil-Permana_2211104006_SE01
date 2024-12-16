@@ -56,7 +56,7 @@ class _MainScreenState extends State<MainScreen> {
                     (rel) => rel['type'] == 'cover_art',
                     orElse: () => null)?['attributes']?['fileName'];
                 final imageUrl = coverArt != null
-                    ? "https://api.mangadex.org/cover/${manga['id']}/$coverArt"
+                    ? "https://api.mangadex.org/cover/${['id']}"
                     : "https://via.placeholder.com/150";
 
                 return Card(

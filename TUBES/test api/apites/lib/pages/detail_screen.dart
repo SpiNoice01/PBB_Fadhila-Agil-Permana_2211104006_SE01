@@ -1,3 +1,4 @@
+import 'package:apites/pages/read_manga.dart';
 import 'package:flutter/material.dart';
 import 'package:apites/services/mangadex_services.dart';
 
@@ -83,6 +84,22 @@ class _DetailScreenState extends State<DetailScreen> {
                           mangaDetails?['attributes']['description']?['en'] ??
                               "No Description Available",
                           style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () {
+                            // Navigate to the ReadMangaScreen with a sample chapterId
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ReadMangaScreen(
+                                  chapterId:
+                                      'sample-chapter-id', // Replace with actual chapter ID
+                                ),
+                              ),
+                            );
+                          },
+                          child: const Text('Read Manga'),
                         ),
                       ],
                     ),
