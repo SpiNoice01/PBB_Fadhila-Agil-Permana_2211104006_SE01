@@ -128,3 +128,4 @@ class _ReadMangaScreenState extends State<ReadMangaScreen> {
     );
   }
 }
+  
