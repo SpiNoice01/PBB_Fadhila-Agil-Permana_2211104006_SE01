@@ -95,7 +95,7 @@ class MangaDexService {
 
   // Get manga chapters
   static Future<List<Map<String, dynamic>>> getMangaChapters(
-      String mangaId) async {
+      String mangaId, {required int limit, required int offset}) async {
     final response = await http.get(Uri.parse(
         '$baseUrl/manga/$mangaId/feed?translatedLanguage[]=en&order[chapter]=asc'));
 

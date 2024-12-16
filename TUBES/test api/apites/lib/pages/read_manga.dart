@@ -28,7 +28,7 @@ class _ReadMangaScreenState extends State<ReadMangaScreen> {
   Future<void> fetchMangaPages() async {
     try {
       final chapterId = widget.chapterId ??
-          (await MangaDexService.getMangaChapters(widget.mangaId)).first['id'];
+          (await MangaDexService.getMangaChapters(widget.mangaId, limit: 1, offset: 0)).first['id'];
       final chapterDetails = await MangaDexService.getChapterDetails(chapterId);
       final pages = await MangaDexService.getChapterPages(chapterId);
       setState(() {

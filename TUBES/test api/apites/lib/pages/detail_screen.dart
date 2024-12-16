@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:apites/services/mangadex_services.dart';
-import 'package:apites/pages/read_manga.dart'; // Import the new read manga screen
+import 'package:apites/pages/read_manga.dart';
 
 class DetailScreen extends StatefulWidget {
   final String mangaId;
@@ -14,20 +14,54 @@ class DetailScreen extends StatefulWidget {
 class _DetailScreenState extends State<DetailScreen> {
   Map<String, dynamic>? mangaDetails;
   List<Map<String, dynamic>> chapters = [];
-  bool isLoading = true;
+  bool isLoadingMore = false;
+  bool isError = false;
+  int currentPage = 0;
+  final int limit = 10;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     fetchMangaDetails();
+    _scrollController.addListener(_scrollListener);
   }
 
   Future<void> fetchMangaDetails() async {
     try {
       final manga = await MangaDexService.getMangaDetails(widget.mangaId);
-      final chapters = await MangaDexService.getMangaChapters(widget.mangaId);
+      setState(() {
+        mangaDetails = manga;
+        isError = false;
+      });
+      fetchChapters();
+    } catch (e) {
+      setState(() {
+        isError = true;
+      });
+      print("Error fetching manga details: $e");
+    }
+  }
+
+  Future<void> fetchChapters({int page = 0}) async {
+    try {
+      if (page == 0) {
+        setState(() {
+          chapters = [];
+        });
+      } else {
+        setState(() {
+          isLoadingMore = true;
+        });
+      }
+
+      final newChapters = await MangaDexService.getMangaChapters(
+        widget.mangaId,
+        limit: limit,
+        offset: page * limit,
+      );
       final chaptersWithDetails =
-          await Future.wait(chapters.map((chapter) async {
+          await Future.wait(newChapters.map((chapter) async {
         final chapterDetails =
             await MangaDexService.getChapterDetails(chapter['id']);
         return {
@@ -35,34 +69,85 @@ class _DetailScreenState extends State<DetailScreen> {
           'pageCount': chapterDetails['attributes']['pages'] ?? 'Unknown',
         };
       }));
+
       setState(() {
-        mangaDetails = manga;
-        this.chapters = chaptersWithDetails;
-        isLoading = false;
+        if (page == 0) {
+          chapters = chaptersWithDetails;
+        } else {
+          chapters.addAll(chaptersWithDetails);
+        }
+        isLoadingMore = false;
       });
-      print("Manga details fetched: $mangaDetails");
     } catch (e) {
       setState(() {
-        isLoading = false;
+        isLoadingMore = false;
+        isError = true;
       });
-      print("Error fetching manga details: $e");
+      print("Error fetching chapters: $e");
     }
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      setState(() {
+        currentPage++;
+      });
+      fetchChapters(page: currentPage);
+    }
+  }
+
+  Future<void> _refresh() async {
+    setState(() {
+      currentPage = 0;
+    });
+    await fetchMangaDetails();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Manga Details')),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : mangaDetails == null
-              ? const Center(child: Text('Error loading manga details'))
-              : SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+      appBar: AppBar(
+        title: const Text('Manga Details'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _refresh,
+          ),
+        ],
+      ),
+      body: isError
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('Error loading manga details'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: _refresh,
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            )
+          : RefreshIndicator(
+              onRefresh: _refresh,
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (mangaDetails == null)
+                        const Center(child: CircularProgressIndicator())
+                      else ...[
                         if (mangaDetails!['coverUrl'] != null)
                           Image.network(
                             mangaDetails!['coverUrl'],
@@ -125,10 +210,14 @@ class _DetailScreenState extends State<DetailScreen> {
                             ),
                           );
                         }).toList(),
+                        if (isLoadingMore)
+                          const Center(child: CircularProgressIndicator()),
                       ],
-                    ),
+                    ],
                   ),
                 ),
+              ),
+            ),
     );
   }
 }
