@@ -108,4 +108,17 @@ class MangaDexService {
       throw Exception('Failed to load manga chapters');
     }
   }
+
+  // Get chapter details
+  static Future<Map<String, dynamic>> getChapterDetails(
+      String chapterId) async {
+    final response = await http.get(Uri.parse('$baseUrl/chapter/$chapterId'));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return data['data'] as Map<String, dynamic>;
+    } else {
+      throw Exception('Failed to load chapter details');
+    }
+  }
 }

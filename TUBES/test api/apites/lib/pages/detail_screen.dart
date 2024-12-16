@@ -13,6 +13,7 @@ class DetailScreen extends StatefulWidget {
 
 class _DetailScreenState extends State<DetailScreen> {
   Map<String, dynamic>? mangaDetails;
+  List<Map<String, dynamic>> chapters = [];
   bool isLoading = true;
 
   @override
@@ -24,8 +25,19 @@ class _DetailScreenState extends State<DetailScreen> {
   Future<void> fetchMangaDetails() async {
     try {
       final manga = await MangaDexService.getMangaDetails(widget.mangaId);
+      final chapters = await MangaDexService.getMangaChapters(widget.mangaId);
+      final chaptersWithDetails =
+          await Future.wait(chapters.map((chapter) async {
+        final chapterDetails =
+            await MangaDexService.getChapterDetails(chapter['id']);
+        return {
+          ...chapter,
+          'pageCount': chapterDetails['attributes']['pages'] ?? 'Unknown',
+        };
+      }));
       setState(() {
         mangaDetails = manga;
+        this.chapters = chaptersWithDetails;
         isLoading = false;
       });
       print("Manga details fetched: $mangaDetails");
@@ -85,6 +97,34 @@ class _DetailScreenState extends State<DetailScreen> {
                           },
                           child: const Text('Read Manga'),
                         ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Chapters',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        const SizedBox(height: 8),
+                        ...chapters.map((chapter) {
+                          final chapterTitle = chapter['attributes']['title'] ??
+                              'Chapter ${chapter['attributes']['chapter']}';
+                          final pageCount = chapter['pageCount'];
+                          return Card(
+                            child: ListTile(
+                              title: Text(chapterTitle),
+                              subtitle: Text('Pages: $pageCount'),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ReadMangaScreen(
+                                      mangaId: widget.mangaId,
+                                      chapterId: chapter['id'],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        }).toList(),
                       ],
                     ),
                   ),

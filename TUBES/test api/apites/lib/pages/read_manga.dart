@@ -3,8 +3,9 @@ import 'package:apites/services/mangadex_services.dart';
 
 class ReadMangaScreen extends StatefulWidget {
   final String mangaId;
+  final String? chapterId;
 
-  const ReadMangaScreen({super.key, required this.mangaId});
+  const ReadMangaScreen({super.key, required this.mangaId, this.chapterId});
 
   @override
   _ReadMangaScreenState createState() => _ReadMangaScreenState();
@@ -15,6 +16,8 @@ class _ReadMangaScreenState extends State<ReadMangaScreen> {
   bool isLoading = true;
   int currentPage = 0;
   bool isLiked = false;
+  String chapterTitle = '';
+  String chapterNumber = '';
 
   @override
   void initState() {
@@ -24,20 +27,17 @@ class _ReadMangaScreenState extends State<ReadMangaScreen> {
 
   Future<void> fetchMangaPages() async {
     try {
-      // Fetch the first chapter's pages for simplicity
-      final chapters = await MangaDexService.getMangaChapters(widget.mangaId);
-      if (chapters.isNotEmpty) {
-        final chapterId = chapters.first['id'];
-        final pages = await MangaDexService.getChapterPages(chapterId);
-        setState(() {
-          this.pages = pages;
-          isLoading = false;
-        });
-      } else {
-        setState(() {
-          isLoading = false;
-        });
-      }
+      final chapterId = widget.chapterId ??
+          (await MangaDexService.getMangaChapters(widget.mangaId)).first['id'];
+      final chapterDetails = await MangaDexService.getChapterDetails(chapterId);
+      final pages = await MangaDexService.getChapterPages(chapterId);
+      setState(() {
+        this.pages = pages;
+        chapterTitle = chapterDetails['attributes']['title'] ??
+            'Chapter ${chapterDetails['attributes']['chapter']}';
+        chapterNumber = chapterDetails['attributes']['chapter'] ?? '';
+        isLoading = false;
+      });
     } catch (e) {
       setState(() {
         isLoading = false;
@@ -72,7 +72,7 @@ class _ReadMangaScreenState extends State<ReadMangaScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Read Manga'),
+        title: Text('$chapterTitle (Chapter $chapterNumber)'),
         actions: [
           IconButton(
             icon: Icon(isLiked ? Icons.favorite : Icons.favorite_border),
