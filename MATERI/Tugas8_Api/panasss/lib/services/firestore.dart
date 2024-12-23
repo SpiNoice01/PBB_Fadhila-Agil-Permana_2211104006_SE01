@@ -13,7 +13,24 @@ class FirestoreService {
     });
   }
 
+  //read : get all notes
+  Stream<QuerySnapshot> getNotesStream() {
+    final notesStream =
+        notes.orderBy('timestamp', descending: true).snapshots();
+
+    return notesStream;
+  }
+
   // Update : update a note
+  Future<void> updateNote(String docID, String newNote) {
+    return notes.doc(docID).update({
+      'note': newNote,
+      'timestamp': Timestamp.now(),
+    });
+  }
 
   // Delete : delete a note
+  Future<void> deleteNote(String docID) {
+    return notes.doc(docID).delete();
+  }
 }
