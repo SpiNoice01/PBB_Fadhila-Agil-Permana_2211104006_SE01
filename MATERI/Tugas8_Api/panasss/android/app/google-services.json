@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "169654985938",
+    "project_id": "tugas-8-cf2c2",
+    "storage_bucket": "tugas-8-cf2c2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:169654985938:android:971e53c801780d34b4b90b",
+        "android_client_info": {
+          "package_name": "com.example.panasss"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAuis5R3cBTO4e8P6u-kwxyXxu9mf4YUOw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
