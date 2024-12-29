@@ -135,6 +135,10 @@ class _MainScreenState extends State<MainScreen> {
                   currentManga['coverUrl'] ?? "https://via.placeholder.com/150";
               final title =
                   currentManga['attributes']['title']?['en'] ?? "Unknown Title";
+              final genres =
+                  (currentManga['attributes']['tags'] as List<dynamic>)
+                      .map((tag) => tag['attributes']['name']['en'] as String)
+                      .toList();
 
               return Column(
                 children: [
@@ -153,40 +157,18 @@ class _MainScreenState extends State<MainScreen> {
                         },
                         child: Container(
                           width: double.infinity,
-                          height: 250,
+                          height: 400,
                           decoration: BoxDecoration(
                             image: DecorationImage(
                               image: CachedNetworkImageProvider(imageUrl),
                               fit: BoxFit.cover,
                             ),
                           ),
-                          child: Container(
-                            alignment: Alignment.bottomLeft,
-                            padding: const EdgeInsets.all(16.0),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  Colors.black.withOpacity(0.7),
-                                  Colors.transparent
-                                ],
-                                begin: Alignment.bottomCenter,
-                                end: Alignment.topCenter,
-                              ),
-                            ),
-                            child: Text(
-                              title,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
                         ),
                       ),
                       Positioned(
                         left: 10,
-                        top: 100,
+                        top: 180,
                         child: IconButton(
                           icon: const Icon(Icons.arrow_back,
                               color: Colors.white, size: 30),
@@ -195,11 +177,60 @@ class _MainScreenState extends State<MainScreen> {
                       ),
                       Positioned(
                         right: 10,
-                        top: 100,
+                        top: 180,
                         child: IconButton(
                           icon: const Icon(Icons.arrow_forward,
                               color: Colors.white, size: 30),
                           onPressed: () => _changeCover(1),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          alignment: Alignment.bottomLeft,
+                          padding: const EdgeInsets.all(6.0),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.black.withOpacity(0.9),
+                                Colors.transparent
+                              ],
+                              begin: Alignment.bottomCenter,
+                              end: Alignment.topCenter,
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                title,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 4.0,
+                                runSpacing: 2.0,
+                                children: genres
+                                    .map((genre) => Chip(
+                                          label: Text(genre),
+                                          backgroundColor:
+                                              const Color(0xFF2C2F33),
+                                          labelStyle: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 10),
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8.0, vertical: 4.0),
+                                        ))
+                                    .toList(),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -259,6 +290,9 @@ class _MainScreenState extends State<MainScreen> {
                   manga['attributes']['description']?['en'] ?? "No Description";
               final imageUrl =
                   manga['coverUrl'] ?? "https://via.placeholder.com/150";
+              final genres = (manga['attributes']['tags'] as List<dynamic>)
+                  .map((tag) => tag['attributes']['name']['en'] as String)
+                  .toList();
 
               return GestureDetector(
                 onTap: () {
@@ -271,25 +305,63 @@ class _MainScreenState extends State<MainScreen> {
                 },
                 child: Card(
                   color: const Color(0xFF2C2F33), // Discord dark theme color
-                  child: ListTile(
-                    leading: CachedNetworkImage(
-                      imageUrl: imageUrl,
-                      width: 50,
-                      height: 50,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) =>
-                          const CircularProgressIndicator(),
-                      errorWidget: (context, url, error) =>
-                          const Icon(Icons.image_not_supported),
-                    ),
-                    title: Text(title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(color: Colors.white)),
-                    subtitle: Text(desc,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(color: Colors.white70)),
+                  child: Row(
+                    children: [
+                      CachedNetworkImage(
+                        imageUrl: imageUrl,
+                        width: 100,
+                        height: 150,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) =>
+                            const CircularProgressIndicator(),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.image_not_supported),
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                desc,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                    color: Colors.white70, fontSize: 12),
+                              ),
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 3.0,
+                                runSpacing: -10.0,
+                                children: genres
+                                    .map((genre) => Chip(
+                                          label: Text(genre),
+                                          backgroundColor: const Color.fromARGB(
+                                              255, 68, 68, 70),
+                                          labelStyle: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 10),
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 0, vertical: 0),
+                                        ))
+                                    .toList(),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               );
