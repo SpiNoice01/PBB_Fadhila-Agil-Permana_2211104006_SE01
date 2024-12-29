@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:apites/services/mangadex_services.dart';
 import 'package:apites/collection/colors.dart'; // Import the colors.dart file
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ReadMangaScreen extends StatefulWidget {
   final String mangaId;
@@ -31,6 +32,29 @@ class _ReadMangaScreenState extends State<ReadMangaScreen> {
     super.initState();
     _pageController = PageController(initialPage: currentPage);
     fetchMangaPages();
+    checkIfLiked(); // Tambahkan ini
+  }
+
+  Future<void> checkIfLiked() async {
+    final prefs = await SharedPreferences.getInstance();
+    final likedManga = prefs.getStringList('likedManga') ?? [];
+    setState(() {
+      isLiked = likedManga.contains(widget.mangaId);
+    });
+  }
+
+  Future<void> toggleLike() async {
+    final prefs = await SharedPreferences.getInstance();
+    final likedManga = prefs.getStringList('likedManga') ?? [];
+    if (isLiked) {
+      likedManga.remove(widget.mangaId);
+    } else {
+      likedManga.add(widget.mangaId);
+    }
+    await prefs.setStringList('likedManga', likedManga);
+    setState(() {
+      isLiked = !isLiked;
+    });
   }
 
   Future<void> fetchMangaPages() async {
@@ -57,12 +81,6 @@ class _ReadMangaScreenState extends State<ReadMangaScreen> {
       });
       print("Error fetching manga pages: $e");
     }
-  }
-
-  void _toggleLike() {
-    setState(() {
-      isLiked = !isLiked;
-    });
   }
 
   void _nextPage() {
@@ -128,7 +146,7 @@ class _ReadMangaScreenState extends State<ReadMangaScreen> {
           IconButton(
             icon: Icon(isLiked ? Icons.favorite : Icons.favorite_border,
                 color: iconColor),
-            onPressed: _toggleLike,
+            onPressed: toggleLike,
           ),
           PopupMenuButton<Color>(
             onSelected: _changeBackgroundColor,

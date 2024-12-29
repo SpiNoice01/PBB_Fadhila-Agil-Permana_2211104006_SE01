@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:apites/services/mangadex_services.dart';
 import 'package:apites/pages/detail_screen.dart';
 import 'package:apites/pages/search_manga.dart';
+import 'package:apites/pages/favorite_screen.dart'; // Import halaman favorit
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -96,6 +97,24 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
+  Future<void> toggleFavorite(String mangaId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final likedManga = prefs.getStringList('likedManga') ?? [];
+    if (likedManga.contains(mangaId)) {
+      likedManga.remove(mangaId);
+    } else {
+      likedManga.add(mangaId);
+    }
+    await prefs.setStringList('likedManga', likedManga);
+    setState(() {});
+  }
+
+  Future<bool> isFavorite(String mangaId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final likedManga = prefs.getStringList('likedManga') ?? [];
+    return likedManga.contains(mangaId);
+  }
+
   @override
   void dispose() {
     _pagingController.dispose();
@@ -121,6 +140,18 @@ class _MainScreenState extends State<MainScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const SearchScreen(),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.favorite,
+                color: Color.fromARGB(255, 237, 237, 237)),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const FavoriteScreen(),
                 ),
               );
             },
@@ -233,8 +264,8 @@ class _MainScreenState extends State<MainScreen> {
                                           .take(5)
                                           .map((genre) => Chip(
                                                 label: Text(genre),
-                                                backgroundColor:
-                                                    const Color(0xFF2C2F33),
+                                                backgroundColor: Colors.black
+                                                    .withOpacity(0.5),
                                                 labelStyle: const TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 10),
@@ -330,8 +361,9 @@ class _MainScreenState extends State<MainScreen> {
                                           children: genres
                                               .map((genre) => Chip(
                                                     label: Text(genre),
-                                                    backgroundColor:
-                                                        const Color(0xFF2C2F33),
+                                                    backgroundColor: Colors
+                                                        .black
+                                                        .withOpacity(0.5),
                                                     labelStyle: const TextStyle(
                                                       color: Colors.white,
                                                       fontSize: 10,
@@ -441,8 +473,8 @@ class _MainScreenState extends State<MainScreen> {
                                 children: genres
                                     .map((genre) => Chip(
                                           label: Text(genre),
-                                          backgroundColor: const Color.fromARGB(
-                                              255, 68, 68, 70),
+                                          backgroundColor:
+                                              Colors.black.withOpacity(0.5),
                                           labelStyle: const TextStyle(
                                               color: Colors.white,
                                               fontSize: 10),
@@ -450,6 +482,29 @@ class _MainScreenState extends State<MainScreen> {
                                               horizontal: 0, vertical: 0),
                                         ))
                                     .toList(),
+                              ),
+                              const SizedBox(height: 8),
+                              FutureBuilder<bool>(
+                                future: isFavorite(manga['id']),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const CircularProgressIndicator();
+                                  } else {
+                                    final isFav = snapshot.data ?? false;
+                                    return IconButton(
+                                      icon: Icon(
+                                        isFav
+                                            ? Icons.favorite
+                                            : Icons.favorite_border,
+                                        color:
+                                            isFav ? Colors.red : Colors.white,
+                                      ),
+                                      onPressed: () =>
+                                          toggleFavorite(manga['id']),
+                                    );
+                                  }
+                                },
                               ),
                             ],
                           ),

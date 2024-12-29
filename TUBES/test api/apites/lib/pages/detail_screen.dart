@@ -22,6 +22,7 @@ class _DetailScreenState extends State<DetailScreen> {
   bool isLoadingMore = false;
   bool isError = false;
   bool isChapterError = false;
+  bool isLiked = false; // Tambahkan variabel ini
   int currentPage = 0;
   final int limit = 10;
   final ScrollController _scrollController = ScrollController();
@@ -31,6 +32,29 @@ class _DetailScreenState extends State<DetailScreen> {
     super.initState();
     fetchMangaDetails();
     _scrollController.addListener(_scrollListener);
+    checkIfLiked(); // Tambahkan ini
+  }
+
+  Future<void> checkIfLiked() async {
+    final prefs = await SharedPreferences.getInstance();
+    final likedManga = prefs.getStringList('likedManga') ?? [];
+    setState(() {
+      isLiked = likedManga.contains(widget.mangaId);
+    });
+  }
+
+  Future<void> toggleLike() async {
+    final prefs = await SharedPreferences.getInstance();
+    final likedManga = prefs.getStringList('likedManga') ?? [];
+    if (isLiked) {
+      likedManga.remove(widget.mangaId);
+    } else {
+      likedManga.add(widget.mangaId);
+    }
+    await prefs.setStringList('likedManga', likedManga);
+    setState(() {
+      isLiked = !isLiked;
+    });
   }
 
   Future<void> saveMangaDetailsToCache(
@@ -224,14 +248,28 @@ class _DetailScreenState extends State<DetailScreen> {
                           const Icon(Icons.image_not_supported),
                     ),
                   const SizedBox(height: 16),
-                  Text(
-                    mangaDetails!['attributes']['title']?['en'] ??
-                        "Unknown Title",
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          mangaDetails!['attributes']['title']?['en'] ??
+                              "Unknown Title",
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          isLiked ? Icons.favorite : Icons.favorite_border,
+                          color: isLiked ? Colors.red : Colors.white,
+                        ),
+                        onPressed: toggleLike,
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 8),
                   Text(
