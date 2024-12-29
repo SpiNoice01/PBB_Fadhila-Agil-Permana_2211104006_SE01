@@ -166,4 +166,13 @@ class MangaDexService {
     }
     return null;
   }
+
+  static Future<Map<String, dynamic>> getAuthorDetails(String authorId) async {
+    final response = await http.get(Uri.parse('$baseUrl/author/$authorId'));
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body)['data'];
+    } else {
+      throw Exception('Failed to load author details');
+    }
+  }
 }

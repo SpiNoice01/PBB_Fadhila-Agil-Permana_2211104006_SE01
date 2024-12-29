@@ -1,3 +1,4 @@
+import 'package:apites/collection/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:apites/services/mangadex_services.dart';
 import 'package:apites/pages/read_manga.dart';
@@ -16,6 +17,7 @@ class DetailScreen extends StatefulWidget {
 
 class _DetailScreenState extends State<DetailScreen> {
   Map<String, dynamic>? mangaDetails;
+  Map<String, dynamic>? authorDetails;
   List<Map<String, dynamic>> chapters = [];
   bool isLoadingMore = false;
   bool isError = false;
@@ -63,12 +65,29 @@ class _DetailScreenState extends State<DetailScreen> {
         isError = false;
       });
       await saveMangaDetailsToCache(manga);
+      fetchAuthorDetails(manga['relationships']);
       fetchChapters();
     } catch (e) {
       setState(() {
         isError = true;
       });
       print("Error fetching manga details: $e");
+    }
+  }
+
+  Future<void> fetchAuthorDetails(List<dynamic> relationships) async {
+    try {
+      final authorRelationship = relationships
+          .firstWhere((rel) => rel['type'] == 'author', orElse: () => null);
+      if (authorRelationship != null) {
+        final authorId = authorRelationship['id'];
+        final author = await MangaDexService.getAuthorDetails(authorId);
+        setState(() {
+          authorDetails = author;
+        });
+      }
+    } catch (e) {
+      print("Error fetching author details: $e");
     }
   }
 
@@ -237,6 +256,37 @@ class _DetailScreenState extends State<DetailScreen> {
                         .toList(),
                   ),
                   const SizedBox(height: 16),
+                  if (authorDetails != null)
+                    Text(
+                      'Author: ${authorDetails!['attributes']['name'] ?? 'Unknown'}',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 16,
+                      ),
+                    ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Status: ${mangaDetails!['attributes']['status'] ?? 'Unknown'}',
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Created At: ${mangaDetails!['attributes']['createdAt'] ?? 'Unknown'}',
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Divider(
+                    color: Color.fromARGB(
+                        65, 255, 255, 255), // Warna garis pembatas
+                    thickness: 1, // Ketebalan garis pembatas
+                  ),
+                  const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
                       Navigator.push(
@@ -248,6 +298,17 @@ class _DetailScreenState extends State<DetailScreen> {
                         ),
                       );
                     },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.mangaDex,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 12),
+                      textStyle: const TextStyle(fontSize: 18),
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(8), // Less rounded corners
+                      ),
+                    ),
                     child: const Text('Read Manga'),
                   ),
                   const SizedBox(height: 16),
