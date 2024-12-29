@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:apites/services/mangadex_services.dart';
 import 'package:apites/pages/read_manga.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class DetailScreen extends StatefulWidget {
   final String mangaId;
@@ -16,6 +19,7 @@ class _DetailScreenState extends State<DetailScreen> {
   List<Map<String, dynamic>> chapters = [];
   bool isLoadingMore = false;
   bool isError = false;
+  bool isChapterError = false;
   int currentPage = 0;
   final int limit = 10;
   final ScrollController _scrollController = ScrollController();
@@ -27,13 +31,38 @@ class _DetailScreenState extends State<DetailScreen> {
     _scrollController.addListener(_scrollListener);
   }
 
+  Future<void> saveMangaDetailsToCache(
+      Map<String, dynamic> mangaDetails) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+        'mangaDetails_${widget.mangaId}', jsonEncode(mangaDetails));
+  }
+
+  Future<Map<String, dynamic>?> getMangaDetailsFromCache() async {
+    final prefs = await SharedPreferences.getInstance();
+    final mangaDetailsString =
+        prefs.getString('mangaDetails_${widget.mangaId}');
+    if (mangaDetailsString != null) {
+      return jsonDecode(mangaDetailsString);
+    }
+    return null;
+  }
+
   Future<void> fetchMangaDetails() async {
     try {
+      final cachedMangaDetails = await getMangaDetailsFromCache();
+      if (cachedMangaDetails != null) {
+        setState(() {
+          mangaDetails = cachedMangaDetails;
+        });
+      }
+
       final manga = await MangaDexService.getMangaDetails(widget.mangaId);
       setState(() {
         mangaDetails = manga;
         isError = false;
       });
+      await saveMangaDetailsToCache(manga);
       fetchChapters();
     } catch (e) {
       setState(() {
@@ -77,11 +106,12 @@ class _DetailScreenState extends State<DetailScreen> {
           chapters.addAll(chaptersWithDetails);
         }
         isLoadingMore = false;
+        isChapterError = false;
       });
     } catch (e) {
       setState(() {
         isLoadingMore = false;
-        isError = true;
+        isChapterError = true;
       });
       print("Error fetching chapters: $e");
     }
@@ -100,6 +130,8 @@ class _DetailScreenState extends State<DetailScreen> {
   Future<void> _refresh() async {
     setState(() {
       currentPage = 0;
+      isError = false;
+      isChapterError = false;
     });
     await fetchMangaDetails();
   }
@@ -114,110 +146,182 @@ class _DetailScreenState extends State<DetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Manga Details'),
+        title: const Text(
+          'Manga Details',
+          style: TextStyle(color: Color.fromARGB(255, 237, 237, 237)),
+        ),
+        backgroundColor: const Color(0xFF2C2F33), // Discord dark theme color
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh,
+                color: Color.fromARGB(255, 237, 237, 237)),
             onPressed: _refresh,
           ),
         ],
       ),
-      body: isError
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('Error loading manga details'),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: _refresh,
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            )
-          : RefreshIndicator(
-              onRefresh: _refresh,
-              child: SingleChildScrollView(
-                controller: _scrollController,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (mangaDetails == null)
-                        const Center(child: CircularProgressIndicator())
-                      else ...[
-                        if (mangaDetails!['coverUrl'] != null)
-                          Image.network(
-                            mangaDetails!['coverUrl'],
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return const Icon(Icons.image_not_supported);
-                            },
-                          ),
-                        const SizedBox(height: 16),
-                        Text(
-                          mangaDetails!['attributes']['title']?['en'] ??
-                              "Unknown Title",
-                          style: Theme.of(context).textTheme.bodyLarge,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          mangaDetails!['attributes']['description']?['en'] ??
-                              "No Description",
-                          style: Theme.of(context).textTheme.bodyMedium,
+      backgroundColor: const Color(0xFF23272A), // Discord dark theme color
+      body: RefreshIndicator(
+        onRefresh: _refresh,
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (isError)
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'Error loading manga details',
+                          style: TextStyle(color: Colors.white),
                         ),
                         const SizedBox(height: 16),
                         ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ReadMangaScreen(
-                                  mangaId: widget.mangaId,
-                                ),
-                              ),
-                            );
-                          },
-                          child: const Text('Read Manga'),
+                          onPressed: _refresh,
+                          child: const Text('Retry'),
                         ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Chapters',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        const SizedBox(height: 8),
-                        ...chapters.map((chapter) {
-                          final chapterTitle = chapter['attributes']['title'] ??
-                              'Chapter ${chapter['attributes']['chapter']}';
-                          final pageCount = chapter['pageCount'];
-                          return Card(
-                            child: ListTile(
-                              title: Text(chapterTitle),
-                              subtitle: Text('Pages: $pageCount'),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ReadMangaScreen(
-                                      mangaId: widget.mangaId,
-                                      chapterId: chapter['id'],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          );
-                        }).toList(),
-                        if (isLoadingMore)
-                          const Center(child: CircularProgressIndicator()),
                       ],
-                    ],
+                    ),
+                  )
+                else if (mangaDetails == null)
+                  const Center(child: CircularProgressIndicator())
+                else ...[
+                  if (mangaDetails!['coverUrl'] != null)
+                    CachedNetworkImage(
+                      imageUrl: mangaDetails!['coverUrl'],
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) =>
+                          const CircularProgressIndicator(),
+                      errorWidget: (context, url, error) =>
+                          const Icon(Icons.image_not_supported),
+                    ),
+                  const SizedBox(height: 16),
+                  Text(
+                    mangaDetails!['attributes']['title']?['en'] ??
+                        "Unknown Title",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-              ),
+                  const SizedBox(height: 8),
+                  Text(
+                    mangaDetails!['attributes']['description']?['en'] ??
+                        "No Description",
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 8.0,
+                    runSpacing: 4.0,
+                    children: (mangaDetails!['attributes']['tags']
+                            as List<dynamic>)
+                        .map((tag) => Chip(
+                              label: Text(tag['attributes']['name']['en']),
+                              backgroundColor: const Color(0xFF2C2F33),
+                              labelStyle: const TextStyle(color: Colors.white),
+                            ))
+                        .toList(),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ReadMangaScreen(
+                            mangaId: widget.mangaId,
+                          ),
+                        ),
+                      );
+                    },
+                    child: const Text('Read Manga'),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Chapters',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  if (isChapterError)
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'Error loading chapters',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: () => fetchChapters(page: currentPage),
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: chapters.length,
+                      itemBuilder: (context, index) {
+                        final chapter = chapters[index];
+                        final chapterTitle = chapter['attributes']['title'] ??
+                            'Chapter ${chapter['attributes']['chapter']}';
+                        final pageCount = chapter['pageCount'];
+                        return Card(
+                          color: const Color(
+                              0xFF2C2F33), // Discord dark theme color
+                          child: ListTile(
+                            title: Text(
+                              'Chapter ${index + 1}: $chapterTitle',
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            subtitle: Text(
+                              'Pages: $pageCount',
+                              style: const TextStyle(color: Colors.white70),
+                            ),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ReadMangaScreen(
+                                    mangaId: widget.mangaId,
+                                    chapterId: chapter['id'],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  if (isLoadingMore)
+                    const Center(child: CircularProgressIndicator()),
+                ],
+              ],
             ),
+          ),
+        ),
+      ),
     );
   }
 }
