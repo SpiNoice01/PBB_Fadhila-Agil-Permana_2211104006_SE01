@@ -8,6 +8,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:apites/collection/colors.dart'; // Import AppColors
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -146,7 +147,7 @@ class _MainScreenState extends State<MainScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.favorite,
-                color: Color.fromARGB(255, 237, 237, 237)),
+                color: AppColors.mangaDex), // Gunakan AppColors
             onPressed: () {
               Navigator.push(
                 context,
