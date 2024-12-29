@@ -38,6 +38,39 @@ class MangaDexService {
     }
   }
 
+  // Get popular Manga
+  static Future<List<Map<String, dynamic>>> getPopularManga() async {
+    final response = await http.get(Uri.parse(
+        "$baseUrl/manga?includes[]=cover_art&order[followedCount]=desc&limit=10"));
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final mangaList = (data['data'] as List<dynamic>)
+          .cast<Map<String, dynamic>>(); // Cast to List<Map<String, dynamic>>
+
+      // Map manga data to include image URL
+      return mangaList.map<Map<String, dynamic>>((manga) {
+        final relationships = manga['relationships'] as List<dynamic>;
+        final coverArt = relationships.firstWhere(
+          (rel) => rel['type'] == 'cover_art',
+          orElse: () => null,
+        ) as Map<String, dynamic>?;
+
+        final coverFileName = coverArt?['attributes']?['fileName'];
+        final mangaId = manga['id'];
+        final imageUrl = coverFileName != null
+            ? "https://uploads.mangadex.org/covers/$mangaId/$coverFileName"
+            : null;
+
+        return {
+          ...manga,
+          'coverUrl': imageUrl, // Add image URL to the manga object
+        };
+      }).toList();
+    } else {
+      throw Exception('Failed to load popular manga');
+    }
+  }
+
   // Get chapter pages
   static Future<List<String>> getChapterPages(String chapterId) async {
     final response =

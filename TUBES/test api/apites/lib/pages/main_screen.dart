@@ -20,11 +20,13 @@ class _MainScreenState extends State<MainScreen> {
   final PagingController<int, Map<String, dynamic>> _pagingController =
       PagingController(firstPageKey: 0);
   int _currentCoverIndex = 0;
+  List<Map<String, dynamic>> _popularMangaList = [];
 
   @override
   void initState() {
     super.initState();
     fetchMangaList();
+    fetchPopularManga();
     _pagingController.addPageRequestListener((pageKey) {
       _fetchPage(pageKey);
     });
@@ -61,6 +63,17 @@ class _MainScreenState extends State<MainScreen> {
       await saveMangaListToCache(newItems);
     } catch (e) {
       print("Error fetching manga list: $e");
+    }
+  }
+
+  Future<void> fetchPopularManga() async {
+    try {
+      final popularManga = await MangaDexService.getPopularManga();
+      setState(() {
+        _popularMangaList = popularManga;
+      });
+    } catch (e) {
+      print("Error fetching popular manga: $e");
     }
   }
 
@@ -243,7 +256,7 @@ class _MainScreenState extends State<MainScreen> {
                   // Carousel
                   CarouselSlider(
                     options: CarouselOptions(height: 350.0),
-                    items: _pagingController.itemList!.map((manga) {
+                    items: _popularMangaList.map((manga) {
                       final title = manga['attributes']['title']?['en'] ??
                           "Unknown Title";
                       final imageUrl = manga['coverUrl'] ??
@@ -265,64 +278,86 @@ class _MainScreenState extends State<MainScreen> {
                             ),
                           );
                         },
-                        child: Card(
-                          color: const Color(
-                              0xFF2C2F33), // Discord dark theme color
-                          child: Column(
-                            children: [
-                              CachedNetworkImage(
-                                imageUrl: imageUrl,
-                                width: double.infinity,
-                                height: 250,
-                                fit: BoxFit.cover,
-                                alignment: Alignment
-                                    .topCenter, // Prioritize top part of the image
-                                placeholder: (context, url) =>
-                                    const CircularProgressIndicator(),
-                                errorWidget: (context, url, error) =>
-                                    const Icon(Icons.image_not_supported),
+                        child: Stack(
+                          children: [
+                            Card(
+                              color: const Color(
+                                  0xFF2C2F33), // Discord dark theme color
+                              child: Column(
+                                children: [
+                                  CachedNetworkImage(
+                                    imageUrl: imageUrl,
+                                    width: double.infinity,
+                                    height: 250,
+                                    fit: BoxFit.cover,
+                                    alignment: Alignment
+                                        .topCenter, // Prioritize top part of the image
+                                    placeholder: (context, url) =>
+                                        const CircularProgressIndicator(),
+                                    errorWidget: (context, url, error) =>
+                                        const Icon(Icons.image_not_supported),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          title,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Wrap(
+                                          spacing: 4.0,
+                                          runSpacing: -10.0,
+                                          children: genres
+                                              .map((genre) => Chip(
+                                                    label: Text(genre),
+                                                    backgroundColor:
+                                                        const Color(0xFF2C2F33),
+                                                    labelStyle: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 10,
+                                                    ),
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                      horizontal: 1.0,
+                                                      vertical: 0.0,
+                                                    ),
+                                                  ))
+                                              .toList(),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      title,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Wrap(
-                                      spacing: 4.0,
-                                      runSpacing: -10.0,
-                                      children: genres
-                                          .map((genre) => Chip(
-                                                label: Text(genre),
-                                                backgroundColor:
-                                                    const Color(0xFF2C2F33),
-                                                labelStyle: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 10,
-                                                ),
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                  horizontal: 1.0,
-                                                  vertical: 0.0,
-                                                ),
-                                              ))
-                                          .toList(),
-                                    ),
-                                  ],
+                            ),
+                            Positioned(
+                              top: 10,
+                              left: 10,
+                              child: Container(
+                                color: Colors.red,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8.0, vertical: 4.0),
+                                child: const Text(
+                                  'Popular',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       );
                     }).toList(),
