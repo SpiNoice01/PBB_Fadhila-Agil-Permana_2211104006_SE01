@@ -24,10 +24,12 @@ class _ReadMangaScreenState extends State<ReadMangaScreen> {
   Color textColor = Colors.black;
   Color iconColor = Colors.black;
   String? nextChapterId;
+  late PageController _pageController;
 
   @override
   void initState() {
     super.initState();
+    _pageController = PageController(initialPage: currentPage);
     fetchMangaPages();
   }
 
@@ -65,17 +67,15 @@ class _ReadMangaScreenState extends State<ReadMangaScreen> {
 
   void _nextPage() {
     if (currentPage < pages.length - 1) {
-      setState(() {
-        currentPage++;
-      });
+      _pageController.nextPage(
+          duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
     }
   }
 
   void _previousPage() {
     if (currentPage > 0) {
-      setState(() {
-        currentPage--;
-      });
+      _pageController.previousPage(
+          duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
     }
   }
 
@@ -160,7 +160,7 @@ class _ReadMangaScreenState extends State<ReadMangaScreen> {
                     children: [
                       Expanded(
                         child: PageView.builder(
-                          controller: PageController(initialPage: currentPage),
+                          controller: _pageController,
                           onPageChanged: (index) {
                             setState(() {
                               currentPage = index;
