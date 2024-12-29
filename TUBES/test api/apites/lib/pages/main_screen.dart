@@ -138,6 +138,7 @@ class _MainScreenState extends State<MainScreen> {
               final genres =
                   (currentManga['attributes']['tags'] as List<dynamic>)
                       .map((tag) => tag['attributes']['name']['en'] as String)
+                      .take(4)
                       .toList();
 
               return Column(
@@ -162,6 +163,8 @@ class _MainScreenState extends State<MainScreen> {
                             image: DecorationImage(
                               image: CachedNetworkImageProvider(imageUrl),
                               fit: BoxFit.cover,
+                              alignment: Alignment
+                                  .topCenter, // Prioritize top part of the image
                             ),
                           ),
                         ),
@@ -190,7 +193,7 @@ class _MainScreenState extends State<MainScreen> {
                         right: 0,
                         child: Container(
                           alignment: Alignment.bottomLeft,
-                          padding: const EdgeInsets.all(6.0),
+                          padding: const EdgeInsets.all(16.0),
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
@@ -198,25 +201,18 @@ class _MainScreenState extends State<MainScreen> {
                                 Colors.transparent
                               ],
                               begin: Alignment.bottomCenter,
-                              end: Alignment.topCenter,
+                              end: const Alignment(
+                                  0, -1), // Make the gradient taller
                             ),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                title,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
                               Wrap(
                                 spacing: 4.0,
                                 runSpacing: 2.0,
                                 children: genres
+                                    .take(5) // Limit to 5 genres
                                     .map((genre) => Chip(
                                           label: Text(genre),
                                           backgroundColor:
@@ -229,6 +225,15 @@ class _MainScreenState extends State<MainScreen> {
                                         ))
                                     .toList(),
                               ),
+                              const SizedBox(height: 8),
+                              Text(
+                                title,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -237,12 +242,18 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                   // Carousel
                   CarouselSlider(
-                    options: CarouselOptions(height: 200.0),
+                    options: CarouselOptions(height: 350.0),
                     items: _pagingController.itemList!.map((manga) {
                       final title = manga['attributes']['title']?['en'] ??
                           "Unknown Title";
                       final imageUrl = manga['coverUrl'] ??
                           "https://via.placeholder.com/150";
+                      final genres =
+                          (manga['attributes']['tags'] as List<dynamic>)
+                              .map((tag) =>
+                                  tag['attributes']['name']['en'] as String)
+                              .take(4)
+                              .toList();
 
                       return GestureDetector(
                         onTap: () {
@@ -262,17 +273,54 @@ class _MainScreenState extends State<MainScreen> {
                               CachedNetworkImage(
                                 imageUrl: imageUrl,
                                 width: double.infinity,
-                                height: 150,
+                                height: 250,
                                 fit: BoxFit.cover,
+                                alignment: Alignment
+                                    .topCenter, // Prioritize top part of the image
                                 placeholder: (context, url) =>
                                     const CircularProgressIndicator(),
                                 errorWidget: (context, url, error) =>
                                     const Icon(Icons.image_not_supported),
                               ),
-                              Text(title,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(color: Colors.white)),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      title,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Wrap(
+                                      spacing: 4.0,
+                                      runSpacing: -10.0,
+                                      children: genres
+                                          .map((genre) => Chip(
+                                                label: Text(genre),
+                                                backgroundColor:
+                                                    const Color(0xFF2C2F33),
+                                                labelStyle: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 10,
+                                                ),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 1.0,
+                                                  vertical: 0.0,
+                                                ),
+                                              ))
+                                          .toList(),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -292,6 +340,7 @@ class _MainScreenState extends State<MainScreen> {
                   manga['coverUrl'] ?? "https://via.placeholder.com/150";
               final genres = (manga['attributes']['tags'] as List<dynamic>)
                   .map((tag) => tag['attributes']['name']['en'] as String)
+                  .take(4)
                   .toList();
 
               return GestureDetector(
