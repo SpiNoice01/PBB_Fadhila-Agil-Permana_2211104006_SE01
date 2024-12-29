@@ -19,7 +19,7 @@ class _MainScreenState extends State<MainScreen> {
   static const _pageSize = 10;
   final PagingController<int, Map<String, dynamic>> _pagingController =
       PagingController(firstPageKey: 0);
-  int _currentCoverIndex = 0;
+  final ScrollController _scrollController = ScrollController();
   List<Map<String, dynamic>> _popularMangaList = [];
 
   @override
@@ -99,6 +99,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void dispose() {
     _pagingController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -107,7 +108,7 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Manga List',
+          'MangaDex',
           style: TextStyle(color: Color.fromARGB(255, 237, 237, 237)),
         ),
         backgroundColor: const Color(0xFF2C2F33), // Discord dark theme color
@@ -124,26 +125,41 @@ class _MainScreenState extends State<MainScreen> {
               );
             },
           ),
+          IconButton(
+            icon: const Icon(Icons.arrow_upward,
+                color: Color.fromARGB(255, 237, 237, 237)),
+            onPressed: () {
+              _scrollController.animateTo(
+                0,
+                duration: const Duration(seconds: 1),
+                curve: Curves.easeInOut,
+              );
+            },
+          ),
         ],
       ),
       backgroundColor: const Color(0xFF23272A), // Discord dark theme color
       body: PagedListView<int, Map<String, dynamic>>(
         pagingController: _pagingController,
+        scrollController: _scrollController,
         builderDelegate: PagedChildBuilderDelegate<Map<String, dynamic>>(
           itemBuilder: (context, manga, index) {
             if (index == 0) {
               return Column(
                 children: [
-                  // Jumbotron with CarouselSlider
+                  // Redesigned Jumbotron with CarouselSlider
                   CarouselSlider(
                     options: CarouselOptions(
                       height: 400.0,
                       autoPlay: true,
+                      autoPlayInterval:
+                          const Duration(seconds: 50), // Durasi antar slide
+                      autoPlayAnimationDuration:
+                          const Duration(seconds: 5), // Durasi animasi transisi
                       enlargeCenterPage: true,
+                      viewportFraction: 1.0, // Make the image take full width
                       onPageChanged: (index, reason) {
-                        setState(() {
-                          _currentCoverIndex = index;
-                        });
+                        setState(() {});
                       },
                     ),
                     items: _pagingController.itemList!.map((manga) {
@@ -179,6 +195,15 @@ class _MainScreenState extends State<MainScreen> {
                                   fit: BoxFit.cover,
                                   alignment: Alignment.topCenter,
                                 ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.5),
+                                    spreadRadius: 5,
+                                    blurRadius: 7,
+                                    offset: const Offset(
+                                        0, 3), // changes position of shadow
+                                  ),
+                                ],
                               ),
                             ),
                             Positioned(
@@ -223,6 +248,8 @@ class _MainScreenState extends State<MainScreen> {
                                     const SizedBox(height: 8),
                                     Text(
                                       title,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontSize: 24,
