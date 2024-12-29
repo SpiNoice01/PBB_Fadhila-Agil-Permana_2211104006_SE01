@@ -96,16 +96,6 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
-  void _changeCover(int direction) {
-    setState(() {
-      _currentCoverIndex =
-          (_currentCoverIndex + direction) % _pagingController.itemList!.length;
-      if (_currentCoverIndex < 0) {
-        _currentCoverIndex = _pagingController.itemList!.length - 1;
-      }
-    });
-  }
-
   @override
   void dispose() {
     _pagingController.dispose();
@@ -142,118 +132,113 @@ class _MainScreenState extends State<MainScreen> {
         builderDelegate: PagedChildBuilderDelegate<Map<String, dynamic>>(
           itemBuilder: (context, manga, index) {
             if (index == 0) {
-              final currentManga =
-                  _pagingController.itemList![_currentCoverIndex];
-              final imageUrl =
-                  currentManga['coverUrl'] ?? "https://via.placeholder.com/150";
-              final title =
-                  currentManga['attributes']['title']?['en'] ?? "Unknown Title";
-              final genres =
-                  (currentManga['attributes']['tags'] as List<dynamic>)
-                      .map((tag) => tag['attributes']['name']['en'] as String)
-                      .take(4)
-                      .toList();
-
               return Column(
                 children: [
-                  // Jumbotron with arrows
-                  Stack(
-                    children: [
-                      GestureDetector(
+                  // Jumbotron with CarouselSlider
+                  CarouselSlider(
+                    options: CarouselOptions(
+                      height: 400.0,
+                      autoPlay: true,
+                      enlargeCenterPage: true,
+                      onPageChanged: (index, reason) {
+                        setState(() {
+                          _currentCoverIndex = index;
+                        });
+                      },
+                    ),
+                    items: _pagingController.itemList!.map((manga) {
+                      final imageUrl = manga['coverUrl'] ??
+                          "https://via.placeholder.com/150";
+                      final title = manga['attributes']['title']?['en'] ??
+                          "Unknown Title";
+                      final genres =
+                          (manga['attributes']['tags'] as List<dynamic>)
+                              .map((tag) =>
+                                  tag['attributes']['name']['en'] as String)
+                              .take(4)
+                              .toList();
+
+                      return GestureDetector(
                         onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
-                                  DetailScreen(mangaId: currentManga['id']),
+                                  DetailScreen(mangaId: manga['id']),
                             ),
                           );
                         },
-                        child: Container(
-                          width: double.infinity,
-                          height: 400,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: CachedNetworkImageProvider(imageUrl),
-                              fit: BoxFit.cover,
-                              alignment: Alignment
-                                  .topCenter, // Prioritize top part of the image
-                            ),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        left: 10,
-                        top: 180,
-                        child: IconButton(
-                          icon: const Icon(Icons.arrow_back,
-                              color: Colors.white, size: 30),
-                          onPressed: () => _changeCover(-1),
-                        ),
-                      ),
-                      Positioned(
-                        right: 10,
-                        top: 180,
-                        child: IconButton(
-                          icon: const Icon(Icons.arrow_forward,
-                              color: Colors.white, size: 30),
-                          onPressed: () => _changeCover(1),
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        child: Container(
-                          alignment: Alignment.bottomLeft,
-                          padding: const EdgeInsets.all(16.0),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                Colors.black.withOpacity(0.9),
-                                Colors.transparent
-                              ],
-                              begin: Alignment.bottomCenter,
-                              end: const Alignment(
-                                  0, -1), // Make the gradient taller
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Wrap(
-                                spacing: 4.0,
-                                runSpacing: 2.0,
-                                children: genres
-                                    .take(5) // Limit to 5 genres
-                                    .map((genre) => Chip(
-                                          label: Text(genre),
-                                          backgroundColor:
-                                              const Color(0xFF2C2F33),
-                                          labelStyle: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 10),
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8.0, vertical: 4.0),
-                                        ))
-                                    .toList(),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                title,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
+                        child: Stack(
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              height: 400,
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: CachedNetworkImageProvider(imageUrl),
+                                  fit: BoxFit.cover,
+                                  alignment: Alignment.topCenter,
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                            Positioned(
+                              bottom: 0,
+                              left: 0,
+                              right: 0,
+                              child: Container(
+                                alignment: Alignment.bottomLeft,
+                                padding: const EdgeInsets.all(16.0),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.black.withOpacity(0.9),
+                                      Colors.transparent
+                                    ],
+                                    begin: Alignment.bottomCenter,
+                                    end: const Alignment(0, -1),
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Wrap(
+                                      spacing: 4.0,
+                                      runSpacing: 2.0,
+                                      children: genres
+                                          .take(5)
+                                          .map((genre) => Chip(
+                                                label: Text(genre),
+                                                backgroundColor:
+                                                    const Color(0xFF2C2F33),
+                                                labelStyle: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 10),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8.0,
+                                                        vertical: 4.0),
+                                              ))
+                                          .toList(),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      title,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
+                      );
+                    }).toList(),
                   ),
-                  // Carousel
+                  // Carousel for popular manga
                   CarouselSlider(
                     options: CarouselOptions(height: 350.0),
                     items: _popularMangaList.map((manga) {
@@ -281,8 +266,7 @@ class _MainScreenState extends State<MainScreen> {
                         child: Stack(
                           children: [
                             Card(
-                              color: const Color(
-                                  0xFF2C2F33), // Discord dark theme color
+                              color: const Color(0xFF2C2F33),
                               child: Column(
                                 children: [
                                   CachedNetworkImage(
@@ -290,8 +274,7 @@ class _MainScreenState extends State<MainScreen> {
                                     width: double.infinity,
                                     height: 250,
                                     fit: BoxFit.cover,
-                                    alignment: Alignment
-                                        .topCenter, // Prioritize top part of the image
+                                    alignment: Alignment.topCenter,
                                     placeholder: (context, url) =>
                                         const CircularProgressIndicator(),
                                     errorWidget: (context, url, error) =>
@@ -388,7 +371,7 @@ class _MainScreenState extends State<MainScreen> {
                   );
                 },
                 child: Card(
-                  color: const Color(0xFF2C2F33), // Discord dark theme color
+                  color: const Color(0xFF2C2F33),
                   child: Row(
                     children: [
                       CachedNetworkImage(
