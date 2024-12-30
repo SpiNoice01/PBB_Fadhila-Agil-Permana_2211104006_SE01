@@ -30,7 +30,7 @@ class _SearchScreenState extends State<SearchScreen> {
     'Romance',
     'Sci-Fi'
   ];
-  final List<String> sortOptions = ['Relevance', 'Popularity', 'Newest'];
+  final List<String> sortOptions = ['Relevance', 'Rating', 'Newest'];
   final ScrollController _scrollController = ScrollController();
   int currentPage = 0;
   final int pageSize = 20;
@@ -61,8 +61,15 @@ class _SearchScreenState extends State<SearchScreen> {
       searchResults.clear();
     });
     try {
-      final results = await MangaDexService.getMangaList(
-          title: query, limit: pageSize, offset: currentPage * pageSize);
+      List<Map<String, dynamic>> results;
+      if (sort == 'Rating') {
+        results = await MangaDexService.getMangaListSortedByRating(
+            title: query, limit: pageSize, offset: currentPage * pageSize);
+      } else {
+        results = await MangaDexService.getMangaList(
+            title: query, limit: pageSize, offset: currentPage * pageSize);
+      }
+
       setState(() {
         List<Map<String, dynamic>> filteredResults = results;
         if (genre != 'All') {
@@ -74,13 +81,14 @@ class _SearchScreenState extends State<SearchScreen> {
           }).toList();
         }
 
-        if (sort == 'Popularity') {
-          filteredResults.sort((a, b) => b['attributes']['followedCount']
-              .compareTo(a['attributes']['followedCount']));
-        } else if (sort == 'Newest') {
-          filteredResults.sort((a, b) =>
-              DateTime.parse(b['attributes']['createdAt'])
-                  .compareTo(DateTime.parse(a['attributes']['createdAt'])));
+        if (sort == 'Newest') {
+          filteredResults.sort((a, b) {
+            final dateA = DateTime.tryParse(a['attributes']['createdAt']) ??
+                DateTime(1970);
+            final dateB = DateTime.tryParse(b['attributes']['createdAt']) ??
+                DateTime(1970);
+            return dateB.compareTo(dateA);
+          });
         }
 
         searchResults = filteredResults;
@@ -100,10 +108,19 @@ class _SearchScreenState extends State<SearchScreen> {
       isLoadingMore = true;
     });
     try {
-      final results = await MangaDexService.getMangaList(
-          title: _searchController.text,
-          limit: pageSize,
-          offset: (currentPage + 1) * pageSize);
+      List<Map<String, dynamic>> results;
+      if (selectedSort == 'Rating') {
+        results = await MangaDexService.getMangaListSortedByRating(
+            title: _searchController.text,
+            limit: pageSize,
+            offset: (currentPage + 1) * pageSize);
+      } else {
+        results = await MangaDexService.getMangaList(
+            title: _searchController.text,
+            limit: pageSize,
+            offset: (currentPage + 1) * pageSize);
+      }
+
       setState(() {
         List<Map<String, dynamic>> filteredResults = results;
         if (selectedGenre != 'All') {
@@ -115,13 +132,14 @@ class _SearchScreenState extends State<SearchScreen> {
           }).toList();
         }
 
-        if (selectedSort == 'Popularity') {
-          filteredResults.sort((a, b) => b['attributes']['followedCount']
-              .compareTo(a['attributes']['followedCount']));
-        } else if (selectedSort == 'Newest') {
-          filteredResults.sort((a, b) =>
-              DateTime.parse(b['attributes']['createdAt'])
-                  .compareTo(DateTime.parse(a['attributes']['createdAt'])));
+        if (selectedSort == 'Newest') {
+          filteredResults.sort((a, b) {
+            final dateA = DateTime.tryParse(a['attributes']['createdAt']) ??
+                DateTime(1970);
+            final dateB = DateTime.tryParse(b['attributes']['createdAt']) ??
+                DateTime(1970);
+            return dateB.compareTo(dateA);
+          });
         }
 
         searchResults.addAll(filteredResults);

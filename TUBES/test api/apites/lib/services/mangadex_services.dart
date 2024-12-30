@@ -175,4 +175,37 @@ class MangaDexService {
       throw Exception('Failed to load author details');
     }
   }
+
+  static Future<List<Map<String, dynamic>>> getMangaListSortedByRating(
+      {required String title, int limit = 10, int offset = 0}) async {
+    final response = await http.get(Uri.parse(
+        "$baseUrl/manga?title=$title&includes[]=cover_art&limit=$limit&offset=$offset&order[rating]=desc"));
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final mangaList = (data['data'] as List<dynamic>)
+          .cast<Map<String, dynamic>>(); // Cast to List<Map<String, dynamic>>
+
+      // Map manga data to include image URL
+      return mangaList.map<Map<String, dynamic>>((manga) {
+        final relationships = manga['relationships'] as List<dynamic>;
+        final coverArt = relationships.firstWhere(
+          (rel) => rel['type'] == 'cover_art',
+          orElse: () => null,
+        ) as Map<String, dynamic>?;
+
+        final coverFileName = coverArt?['attributes']?['fileName'];
+        final mangaId = manga['id'];
+        final imageUrl = coverFileName != null
+            ? "https://uploads.mangadex.org/covers/$mangaId/$coverFileName"
+            : null;
+
+        return {
+          ...manga,
+          'coverUrl': imageUrl, // Add image URL to the manga object
+        };
+      }).toList();
+    } else {
+      throw Exception('Failed to load manga sorted by rating');
+    }
+  }
 }
