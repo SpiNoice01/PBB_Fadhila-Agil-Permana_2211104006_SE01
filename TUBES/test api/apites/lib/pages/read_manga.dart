@@ -22,10 +22,12 @@ class _ReadMangaScreenState extends State<ReadMangaScreen> {
   bool isLiked = false;
   String chapterTitle = '';
   String chapterNumber = '';
-  Color backgroundColor = Colors.white;
-  Color appBarColor = Colors.white;
-  Color textColor = Colors.black;
-  Color iconColor = Colors.black;
+  Color backgroundColor =
+      const Color(0xFF23272A); // Default to Discord dark theme
+  Color appBarColor =
+      const Color(0xFF23272A).withOpacity(0.8); // Default to Discord dark theme
+  Color textColor = Colors.white; // Default to white text
+  Color iconColor = Colors.white; // Default to white icons
   String? nextChapterId;
   late PageController _pageController;
 
@@ -162,7 +164,7 @@ class _ReadMangaScreenState extends State<ReadMangaScreen> {
                 child: Text('Dark'),
               ),
               const PopupMenuItem(
-                value: Color(0xFFFFF3E0), // Warm color
+                value: Color.fromARGB(255, 195, 169, 128), // Warm color
                 child: Text('Warm'),
               ),
             ],
