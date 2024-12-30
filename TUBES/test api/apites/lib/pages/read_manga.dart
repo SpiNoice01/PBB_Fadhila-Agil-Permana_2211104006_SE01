@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:apites/services/mangadex_services.dart';
 import 'package:apites/collection/colors.dart'; // Import the colors.dart file
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:photo_view/photo_view_gallery.dart';
 
 class ReadMangaScreen extends StatefulWidget {
   final String mangaId;
@@ -177,53 +179,59 @@ class _ReadMangaScreenState extends State<ReadMangaScreen> {
                   child: Column(
                     children: [
                       Expanded(
-                        child: PageView.builder(
-                          controller: _pageController,
+                        child: PhotoViewGallery.builder(
+                          pageController: _pageController,
                           onPageChanged: (index) {
                             setState(() {
                               currentPage = index;
                             });
                           },
                           itemCount: pages.length + 1,
-                          itemBuilder: (context, index) {
+                          builder: (context, index) {
                             if (index == pages.length) {
-                              return Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Text(
-                                      'End of Chapter',
-                                      style: TextStyle(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColors.mangaDex,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    if (nextChapterId != null)
-                                      ElevatedButton(
-                                        onPressed: _readNextChapter,
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: AppColors.mangaDex,
-                                          foregroundColor: Colors.white,
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 24, vertical: 12),
-                                          textStyle:
-                                              const TextStyle(fontSize: 18),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                                8), // Less rounded corners
-                                          ),
+                              return PhotoViewGalleryPageOptions.customChild(
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Text(
+                                        'End of Chapter',
+                                        style: TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.mangaDex,
                                         ),
-                                        child: const Text('Read Next Chapter'),
                                       ),
-                                  ],
+                                      const SizedBox(height: 16),
+                                      if (nextChapterId != null)
+                                        ElevatedButton(
+                                          onPressed: _readNextChapter,
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: AppColors.mangaDex,
+                                            foregroundColor: Colors.white,
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 24, vertical: 12),
+                                            textStyle:
+                                                const TextStyle(fontSize: 18),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                      8), // Less rounded corners
+                                            ),
+                                          ),
+                                          child:
+                                              const Text('Read Next Chapter'),
+                                        ),
+                                    ],
+                                  ),
                                 ),
                               );
                             }
-                            return Image.network(
-                              pages[index],
-                              fit: BoxFit.contain,
+                            return PhotoViewGalleryPageOptions(
+                              imageProvider: NetworkImage(pages[index]),
+                              minScale: PhotoViewComputedScale.contained,
+                              maxScale: PhotoViewComputedScale.covered * 2,
+                              initialScale: PhotoViewComputedScale.contained,
                               errorBuilder: (context, error, stackTrace) {
                                 return const Icon(Icons.image_not_supported);
                               },
