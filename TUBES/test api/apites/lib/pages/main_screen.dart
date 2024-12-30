@@ -8,6 +8,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:apites/collection/colors.dart'; // Import AppColors
 
 class MainScreen extends StatefulWidget {
@@ -127,9 +128,18 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'MangaDex',
-          style: TextStyle(color: Color.fromARGB(255, 237, 237, 237)),
+        title: Row(
+          children: [
+            SvgPicture.asset(
+              'lib/assets/mangaDex.svg', // Path to your SVG asset
+              height: 40,
+            ),
+            const SizedBox(width: 10),
+            const Text(
+              'MangaDex',
+              style: TextStyle(color: Color.fromARGB(255, 237, 237, 237)),
+            ),
+          ],
         ),
         backgroundColor: const Color(0xFF2C2F33), // Discord dark theme color
         actions: [
