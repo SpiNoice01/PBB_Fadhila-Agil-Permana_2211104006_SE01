@@ -14,16 +14,76 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   List<Map<String, dynamic>> searchResults = [];
   bool isLoading = false;
+  bool isLoadingMore = false;
   final TextEditingController _searchController = TextEditingController();
+  String selectedGenre = 'All';
+  String selectedSort = 'Relevance';
+  final List<String> genres = [
+    'All',
+    'Action',
+    'Adventure',
+    'Comedy',
+    'Drama',
+    'Fantasy',
+    'Horror',
+    'Mystery',
+    'Romance',
+    'Sci-Fi'
+  ];
+  final List<String> sortOptions = ['Relevance', 'Popularity', 'Newest'];
+  final ScrollController _scrollController = ScrollController();
+  int currentPage = 0;
+  final int pageSize = 20;
 
-  Future<void> searchManga(String query) async {
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      loadMoreManga();
+    }
+  }
+
+  Future<void> searchManga(String query, String genre, String sort) async {
     setState(() {
       isLoading = true;
+      currentPage = 0;
+      searchResults.clear();
     });
     try {
-      final results = await MangaDexService.getMangaList(title: query);
+      final results = await MangaDexService.getMangaList(
+          title: query, limit: pageSize, offset: currentPage * pageSize);
       setState(() {
-        searchResults = results;
+        List<Map<String, dynamic>> filteredResults = results;
+        if (genre != 'All') {
+          filteredResults = results.where((manga) {
+            final mangaGenres = (manga['attributes']['tags'] as List<dynamic>)
+                .map((tag) => tag['attributes']['name']['en'] as String)
+                .toList();
+            return mangaGenres.contains(genre);
+          }).toList();
+        }
+
+        if (sort == 'Popularity') {
+          filteredResults.sort((a, b) => b['attributes']['followedCount']
+              .compareTo(a['attributes']['followedCount']));
+        } else if (sort == 'Newest') {
+          filteredResults.sort((a, b) =>
+              DateTime.parse(b['attributes']['createdAt'])
+                  .compareTo(DateTime.parse(a['attributes']['createdAt'])));
+        }
+
+        searchResults = filteredResults;
         isLoading = false;
       });
     } catch (e) {
@@ -31,6 +91,48 @@ class _SearchScreenState extends State<SearchScreen> {
         isLoading = false;
       });
       print("Error searching manga: $e");
+    }
+  }
+
+  Future<void> loadMoreManga() async {
+    if (isLoadingMore) return;
+    setState(() {
+      isLoadingMore = true;
+    });
+    try {
+      final results = await MangaDexService.getMangaList(
+          title: _searchController.text,
+          limit: pageSize,
+          offset: (currentPage + 1) * pageSize);
+      setState(() {
+        List<Map<String, dynamic>> filteredResults = results;
+        if (selectedGenre != 'All') {
+          filteredResults = results.where((manga) {
+            final mangaGenres = (manga['attributes']['tags'] as List<dynamic>)
+                .map((tag) => tag['attributes']['name']['en'] as String)
+                .toList();
+            return mangaGenres.contains(selectedGenre);
+          }).toList();
+        }
+
+        if (selectedSort == 'Popularity') {
+          filteredResults.sort((a, b) => b['attributes']['followedCount']
+              .compareTo(a['attributes']['followedCount']));
+        } else if (selectedSort == 'Newest') {
+          filteredResults.sort((a, b) =>
+              DateTime.parse(b['attributes']['createdAt'])
+                  .compareTo(DateTime.parse(a['attributes']['createdAt'])));
+        }
+
+        searchResults.addAll(filteredResults);
+        currentPage++;
+        isLoadingMore = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoadingMore = false;
+      });
+      print("Error loading more manga: $e");
     }
   }
 
@@ -63,7 +165,8 @@ class _SearchScreenState extends State<SearchScreen> {
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.search, color: Colors.white),
                   onPressed: () {
-                    searchManga(_searchController.text);
+                    searchManga(
+                        _searchController.text, selectedGenre, selectedSort);
                   },
                 ),
                 enabledBorder: OutlineInputBorder(
@@ -77,16 +180,64 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
               style: const TextStyle(color: Colors.white),
               onSubmitted: (query) {
-                searchManga(query);
+                searchManga(query, selectedGenre, selectedSort);
               },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: DropdownButton<String>(
+                    value: selectedGenre,
+                    dropdownColor: const Color(0xFF2C2F33),
+                    style: const TextStyle(color: Colors.white),
+                    items: genres.map((String genre) {
+                      return DropdownMenuItem<String>(
+                        value: genre,
+                        child: Text(genre),
+                      );
+                    }).toList(),
+                    onChanged: (newValue) {
+                      setState(() {
+                        selectedGenre = newValue!;
+                      });
+                    },
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: DropdownButton<String>(
+                    value: selectedSort,
+                    dropdownColor: const Color(0xFF2C2F33),
+                    style: const TextStyle(color: Colors.white),
+                    items: sortOptions.map((String sortOption) {
+                      return DropdownMenuItem<String>(
+                        value: sortOption,
+                        child: Text(sortOption),
+                      );
+                    }).toList(),
+                    onChanged: (newValue) {
+                      setState(() {
+                        selectedSort = newValue!;
+                      });
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
           isLoading
               ? const Center(child: CircularProgressIndicator())
               : Expanded(
                   child: ListView.builder(
-                    itemCount: searchResults.length,
+                    controller: _scrollController,
+                    itemCount: searchResults.length + (isLoadingMore ? 1 : 0),
                     itemBuilder: (context, index) {
+                      if (index == searchResults.length) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
                       final manga = searchResults[index];
 
                       // Extract manga details
