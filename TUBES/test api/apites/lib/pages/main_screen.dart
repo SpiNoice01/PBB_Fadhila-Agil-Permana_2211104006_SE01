@@ -551,7 +551,7 @@ class _MainScreenState extends State<MainScreen> {
                   manga['coverUrl'] ?? "https://via.placeholder.com/150";
               final genres = (manga['attributes']['tags'] as List<dynamic>)
                   .map((tag) => tag['attributes']['name']['en'] as String)
-                  .take(4)
+                  .take(3)
                   .toList();
 
               return GestureDetector(
@@ -568,7 +568,7 @@ class _MainScreenState extends State<MainScreen> {
                   child: Row(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(10.0),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(2),
                           child: CachedNetworkImage(
@@ -613,8 +613,9 @@ class _MainScreenState extends State<MainScreen> {
                                 children: genres
                                     .map((genre) => Chip(
                                           label: Text(genre),
-                                          backgroundColor:
-                                              Colors.black.withOpacity(0.5),
+                                          backgroundColor: const Color.fromARGB(
+                                                  255, 12, 12, 12)
+                                              .withOpacity(0.7),
                                           labelStyle: const TextStyle(
                                               color: Colors.white,
                                               fontSize: 10),
