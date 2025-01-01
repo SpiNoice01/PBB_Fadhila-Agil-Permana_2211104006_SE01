@@ -573,8 +573,8 @@ class _MainScreenState extends State<MainScreen> {
                           borderRadius: BorderRadius.circular(2),
                           child: CachedNetworkImage(
                             imageUrl: imageUrl,
-                            width: 100,
-                            height: 150,
+                            width: 120,
+                            height: 170,
                             fit: BoxFit.cover,
                             placeholder: (context, url) =>
                                 const CircularProgressIndicator(),
@@ -585,7 +585,7 @@ class _MainScreenState extends State<MainScreen> {
                       ),
                       Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.all(10.0),
+                          padding: const EdgeInsets.all(8.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -595,7 +595,7 @@ class _MainScreenState extends State<MainScreen> {
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                     color: Colors.white,
-                                    fontSize: 18,
+                                    fontSize: 16,
                                     fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(height: 4),
