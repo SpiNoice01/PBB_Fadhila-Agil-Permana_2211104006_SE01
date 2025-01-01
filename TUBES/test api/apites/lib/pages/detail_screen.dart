@@ -23,6 +23,8 @@ class _DetailScreenState extends State<DetailScreen> {
   bool isError = false;
   bool isChapterError = false;
   bool isLiked = false; // Tambahkan variabel ini
+  String? bookmarkedChapterId; // Tambahkan variabel ini
+  String? bookmarkedChapterTitle; // Tambahkan variabel ini
   int currentPage = 0;
   final int limit = 10;
   final ScrollController _scrollController = ScrollController();
@@ -33,6 +35,7 @@ class _DetailScreenState extends State<DetailScreen> {
     fetchMangaDetails();
     _scrollController.addListener(_scrollListener);
     checkIfLiked(); // Tambahkan ini
+    getBookmark(); // Tambahkan ini
   }
 
   Future<void> checkIfLiked() async {
@@ -157,6 +160,19 @@ class _DetailScreenState extends State<DetailScreen> {
         isChapterError = true;
       });
       print("Error fetching chapters: $e");
+    }
+  }
+
+  Future<void> getBookmark() async {
+    final prefs = await SharedPreferences.getInstance();
+    final chapterId = prefs.getString('bookmark_${widget.mangaId}');
+    if (chapterId != null) {
+      final chapterDetails = await MangaDexService.getChapterDetails(chapterId);
+      setState(() {
+        bookmarkedChapterId = chapterId;
+        bookmarkedChapterTitle = chapterDetails['attributes']['title'] ??
+            'Chapter ${chapterDetails['attributes']['chapter']}';
+      });
     }
   }
 
@@ -332,6 +348,7 @@ class _DetailScreenState extends State<DetailScreen> {
                         MaterialPageRoute(
                           builder: (context) => ReadMangaScreen(
                             mangaId: widget.mangaId,
+                            chapterId: bookmarkedChapterId, // Tambahkan ini
                           ),
                         ),
                       );
@@ -347,7 +364,9 @@ class _DetailScreenState extends State<DetailScreen> {
                             BorderRadius.circular(8), // Less rounded corners
                       ),
                     ),
-                    child: const Text('Read Manga'),
+                    child: Text(bookmarkedChapterId != null
+                        ? 'Continue Reading, \n$bookmarkedChapterTitle'
+                        : 'Start Reading'),
                   ),
                   const SizedBox(height: 16),
                   const Text(

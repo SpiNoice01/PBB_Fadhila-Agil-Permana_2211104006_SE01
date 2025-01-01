@@ -61,6 +61,11 @@ class _ReadMangaScreenState extends State<ReadMangaScreen> {
     });
   }
 
+  Future<void> saveBookmark(String mangaId, String chapterId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('bookmark_$mangaId', chapterId);
+  }
+
   Future<void> fetchMangaPages() async {
     try {
       final chapterId = widget.chapterId ??
@@ -79,6 +84,8 @@ class _ReadMangaScreenState extends State<ReadMangaScreen> {
         nextChapterId = nextChapter?['id'];
         isLoading = false;
       });
+      // Simpan bookmark saat chapter dimuat
+      await saveBookmark(widget.mangaId, chapterId);
     } catch (e) {
       setState(() {
         isLoading = false;

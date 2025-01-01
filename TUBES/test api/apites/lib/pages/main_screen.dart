@@ -24,12 +24,14 @@ class _MainScreenState extends State<MainScreen> {
       PagingController(firstPageKey: 0);
   final ScrollController _scrollController = ScrollController();
   List<Map<String, dynamic>> _popularMangaList = [];
+  List<Map<String, dynamic>> _favoriteMangaList = [];
 
   @override
   void initState() {
     super.initState();
     fetchMangaList();
     fetchPopularManga();
+    fetchFavoriteManga();
     _pagingController.addPageRequestListener((pageKey) {
       _fetchPage(pageKey);
     });
@@ -80,6 +82,23 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
+  Future<void> fetchFavoriteManga() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final likedMangaIds = prefs.getStringList('likedManga') ?? [];
+      List<Map<String, dynamic>> favoriteManga = [];
+      for (String id in likedMangaIds) {
+        final manga = await MangaDexService.getMangaDetails(id);
+        favoriteManga.add(manga);
+      }
+      setState(() {
+        _favoriteMangaList = favoriteManga;
+      });
+    } catch (e) {
+      print("Error fetching favorite manga: $e");
+    }
+  }
+
   Future<void> _fetchPage(int pageKey) async {
     try {
       final newItems = await MangaDexService.getMangaList(
@@ -108,7 +127,9 @@ class _MainScreenState extends State<MainScreen> {
       likedManga.add(mangaId);
     }
     await prefs.setStringList('likedManga', likedManga);
-    setState(() {});
+    setState(() {
+      fetchFavoriteManga(); // Refresh favorite manga list
+    });
   }
 
   Future<bool> isFavorite(String mangaId) async {
@@ -415,6 +436,96 @@ class _MainScreenState extends State<MainScreen> {
                       );
                     }).toList(),
                   ),
+                  // Horizontal list for favorite manga
+                  if (_favoriteMangaList.isNotEmpty)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 16),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Text(
+                            'Your Favorites',
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 226, 226, 226),
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        SizedBox(
+                          height: 200,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: _favoriteMangaList.length,
+                            itemBuilder: (context, index) {
+                              final manga = _favoriteMangaList[index];
+                              final title = manga['attributes']['title']
+                                      ?['en'] ??
+                                  "Unknown Title";
+                              final imageUrl = manga['coverUrl'] ??
+                                  "https://via.placeholder.com/150";
+
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          DetailScreen(mangaId: manga['id']),
+                                    ),
+                                  );
+                                },
+                                child: Card(
+                                  color: const Color(0xFF2C2F33),
+                                  child: Column(
+                                    children: [
+                                      CachedNetworkImage(
+                                        imageUrl: imageUrl,
+                                        width: 100,
+                                        height: 150,
+                                        fit: BoxFit.cover,
+                                        placeholder: (context, url) =>
+                                            const CircularProgressIndicator(),
+                                        errorWidget: (context, url, error) =>
+                                            const Icon(
+                                                Icons.image_not_supported),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(
+                                          title,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Text(
+                            'Just Uploaded',
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 226, 226, 226),
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                 ],
               );
             } else {
