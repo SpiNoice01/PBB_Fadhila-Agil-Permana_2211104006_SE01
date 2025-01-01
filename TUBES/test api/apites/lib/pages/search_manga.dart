@@ -102,6 +102,10 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
+  Future<void> _refreshPage() async {
+    await searchManga(_searchController.text, selectedGenre, selectedSort);
+  }
+
   Future<void> loadMoreManga() async {
     if (isLoadingMore) return;
     setState(() {
@@ -171,173 +175,179 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
       ),
       backgroundColor: const Color(0xFF23272A), // Discord dark theme color
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                labelText: 'Search',
-                labelStyle: const TextStyle(color: Colors.white),
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.search, color: Colors.white),
-                  onPressed: () {
-                    searchManga(
-                        _searchController.text, selectedGenre, selectedSort);
-                  },
+      body: RefreshIndicator(
+        onRefresh: _refreshPage,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  labelText: 'Search',
+                  labelStyle: const TextStyle(color: Colors.white),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.search, color: Colors.white),
+                    onPressed: () {
+                      searchManga(
+                          _searchController.text, selectedGenre, selectedSort);
+                    },
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: const BorderSide(color: Colors.white),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: const BorderSide(color: Colors.white),
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                style: const TextStyle(color: Colors.white),
+                onSubmitted: (query) {
+                  searchManga(query, selectedGenre, selectedSort);
+                },
               ),
-              style: const TextStyle(color: Colors.white),
-              onSubmitted: (query) {
-                searchManga(query, selectedGenre, selectedSort);
-              },
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: DropdownButton<String>(
-                    value: selectedGenre,
-                    dropdownColor: const Color(0xFF2C2F33),
-                    style: const TextStyle(color: Colors.white),
-                    items: genres.map((String genre) {
-                      return DropdownMenuItem<String>(
-                        value: genre,
-                        child: Text(genre),
-                      );
-                    }).toList(),
-                    onChanged: (newValue) {
-                      setState(() {
-                        selectedGenre = newValue!;
-                      });
-                    },
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: DropdownButton<String>(
-                    value: selectedSort,
-                    dropdownColor: const Color(0xFF2C2F33),
-                    style: const TextStyle(color: Colors.white),
-                    items: sortOptions.map((String sortOption) {
-                      return DropdownMenuItem<String>(
-                        value: sortOption,
-                        child: Text(sortOption),
-                      );
-                    }).toList(),
-                    onChanged: (newValue) {
-                      setState(() {
-                        selectedSort = newValue!;
-                      });
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-          isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : Expanded(
-                  child: GridView.builder(
-                    controller: _scrollController,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      childAspectRatio: 0.5,
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: DropdownButton<String>(
+                      value: selectedGenre,
+                      dropdownColor: const Color(0xFF2C2F33),
+                      style: const TextStyle(color: Colors.white),
+                      items: genres.map((String genre) {
+                        return DropdownMenuItem<String>(
+                          value: genre,
+                          child: Text(genre),
+                        );
+                      }).toList(),
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedGenre = newValue!;
+                        });
+                      },
                     ),
-                    itemCount: searchResults.length + (isLoadingMore ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      if (index == searchResults.length) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                      final manga = searchResults[index];
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: DropdownButton<String>(
+                      value: selectedSort,
+                      dropdownColor: const Color(0xFF2C2F33),
+                      style: const TextStyle(color: Colors.white),
+                      items: sortOptions.map((String sortOption) {
+                        return DropdownMenuItem<String>(
+                          value: sortOption,
+                          child: Text(sortOption),
+                        );
+                      }).toList(),
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedSort = newValue!;
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : Expanded(
+                    child: GridView.builder(
+                      controller: _scrollController,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        childAspectRatio: 0.5,
+                      ),
+                      itemCount: searchResults.length + (isLoadingMore ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        if (index == searchResults.length) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+                        final manga = searchResults[index];
 
-                      // Extract manga details
-                      final title = manga['attributes']['title']?['en'] ??
-                          "Unknown Title";
-                      final desc = manga['attributes']['description']?['en'] ??
-                          "No Description";
-                      final imageUrl = manga['coverUrl'] ??
-                          "https://via.placeholder.com/150";
+                        // Extract manga details
+                        final title = manga['attributes']['title']?['en'] ??
+                            "Unknown Title";
+                        final desc = manga['attributes']['description']
+                                ?['en'] ??
+                            "No Description";
+                        final imageUrl = manga['coverUrl'] ??
+                            "https://via.placeholder.com/150";
 
-                      return Card(
-                        color:
-                            const Color(0xFF2C2F33), // Discord dark theme color
-                        child: InkWell(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    DetailScreen(mangaId: manga['id']),
-                              ),
-                            );
-                          },
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                flex: 3,
-                                child: CachedNetworkImage(
-                                  imageUrl: imageUrl,
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                  alignment: Alignment.topCenter,
-                                  placeholder: (context, url) =>
-                                      const CircularProgressIndicator(),
-                                  errorWidget: (context, url, error) =>
-                                      const Icon(Icons.image_not_supported),
-                                  imageBuilder: (context, imageProvider) =>
-                                      ClipRRect(
-                                    borderRadius: BorderRadius.circular(1),
-                                    child: Image(
-                                      image: imageProvider,
-                                      width: double.infinity,
-                                      fit: BoxFit.cover,
-                                      alignment: Alignment.topCenter,
+                        return Card(
+                          color: const Color(
+                              0xFF2C2F33), // Discord dark theme color
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      DetailScreen(mangaId: manga['id']),
+                                ),
+                              );
+                            },
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  flex: 3,
+                                  child: CachedNetworkImage(
+                                    imageUrl: imageUrl,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                    alignment: Alignment.topCenter,
+                                    placeholder: (context, url) =>
+                                        const CircularProgressIndicator(),
+                                    errorWidget: (context, url, error) =>
+                                        const Icon(Icons.image_not_supported),
+                                    imageBuilder: (context, imageProvider) =>
+                                        ClipRRect(
+                                      borderRadius: BorderRadius.circular(1),
+                                      child: Image(
+                                        image: imageProvider,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                        alignment: Alignment.topCenter,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Text(
-                                  title,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(color: Colors.white),
+                                Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Text(
+                                    title,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
                                 ),
-                              ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 12.0)
-                                        .copyWith(bottom: 12.0),
-                                child: Text(
-                                  desc,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(color: Colors.white70),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                          horizontal: 12.0)
+                                      .copyWith(bottom: 12.0),
+                                  child: Text(
+                                    desc,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style:
+                                        const TextStyle(color: Colors.white70),
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
-                ),
-        ],
+          ],
+        ),
       ),
     );
   }
