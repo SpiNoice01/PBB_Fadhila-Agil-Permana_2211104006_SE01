@@ -461,7 +461,7 @@ class _MainScreenState extends State<MainScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 1),
                         SizedBox(
                           height: 200,
                           child: ListView.builder(
