@@ -490,16 +490,19 @@ class _MainScreenState extends State<MainScreen> {
                                   color: const Color(0xFF2C2F33),
                                   child: Column(
                                     children: [
-                                      CachedNetworkImage(
-                                        imageUrl: imageUrl,
-                                        width: 100,
-                                        height: 150,
-                                        fit: BoxFit.cover,
-                                        placeholder: (context, url) =>
-                                            const CircularProgressIndicator(),
-                                        errorWidget: (context, url, error) =>
-                                            const Icon(
-                                                Icons.image_not_supported),
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(2),
+                                        child: CachedNetworkImage(
+                                          imageUrl: imageUrl,
+                                          width: 100,
+                                          height: 150,
+                                          fit: BoxFit.cover,
+                                          placeholder: (context, url) =>
+                                              const CircularProgressIndicator(),
+                                          errorWidget: (context, url, error) =>
+                                              const Icon(
+                                                  Icons.image_not_supported),
+                                        ),
                                       ),
                                       Padding(
                                         padding: const EdgeInsets.all(8.0),
@@ -566,15 +569,18 @@ class _MainScreenState extends State<MainScreen> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: CachedNetworkImage(
-                          imageUrl: imageUrl,
-                          width: 100,
-                          height: 150,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) =>
-                              const CircularProgressIndicator(),
-                          errorWidget: (context, url, error) =>
-                              const Icon(Icons.image_not_supported),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(2),
+                          child: CachedNetworkImage(
+                            imageUrl: imageUrl,
+                            width: 100,
+                            height: 150,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) =>
+                                const CircularProgressIndicator(),
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.image_not_supported),
+                          ),
                         ),
                       ),
                       Expanded(
