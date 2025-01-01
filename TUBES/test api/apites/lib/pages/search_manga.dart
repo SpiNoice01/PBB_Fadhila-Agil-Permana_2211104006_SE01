@@ -249,8 +249,13 @@ class _SearchScreenState extends State<SearchScreen> {
           isLoading
               ? const Center(child: CircularProgressIndicator())
               : Expanded(
-                  child: ListView.builder(
+                  child: GridView.builder(
                     controller: _scrollController,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      childAspectRatio: 0.5,
+                    ),
                     itemCount: searchResults.length + (isLoadingMore ? 1 : 0),
                     itemBuilder: (context, index) {
                       if (index == searchResults.length) {
@@ -269,29 +274,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       return Card(
                         color:
                             const Color(0xFF2C2F33), // Discord dark theme color
-                        child: ListTile(
-                          leading: CachedNetworkImage(
-                            imageUrl: imageUrl,
-                            width: 50,
-                            height: 50,
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) =>
-                                const CircularProgressIndicator(),
-                            errorWidget: (context, url, error) =>
-                                const Icon(Icons.image_not_supported),
-                          ),
-                          title: Text(
-                            title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                          subtitle: Text(
-                            desc,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(color: Colors.white70),
-                          ),
+                        child: InkWell(
                           onTap: () {
                             Navigator.push(
                               context,
@@ -301,6 +284,54 @@ class _SearchScreenState extends State<SearchScreen> {
                               ),
                             );
                           },
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                flex: 3,
+                                child: CachedNetworkImage(
+                                  imageUrl: imageUrl,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                  alignment: Alignment.topCenter,
+                                  placeholder: (context, url) =>
+                                      const CircularProgressIndicator(),
+                                  errorWidget: (context, url, error) =>
+                                      const Icon(Icons.image_not_supported),
+                                  imageBuilder: (context, imageProvider) =>
+                                      ClipRRect(
+                                    borderRadius: BorderRadius.circular(1),
+                                    child: Image(
+                                      image: imageProvider,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                      alignment: Alignment.topCenter,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: Text(
+                                  title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 12.0)
+                                        .copyWith(bottom: 12.0),
+                                child: Text(
+                                  desc,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(color: Colors.white70),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     },
