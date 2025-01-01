@@ -4,6 +4,7 @@ import 'package:apites/collection/colors.dart'; // Import the colors.dart file
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ReadMangaScreen extends StatefulWidget {
   final String mangaId;
@@ -237,13 +238,18 @@ class _ReadMangaScreenState extends State<ReadMangaScreen> {
                               );
                             }
                             return PhotoViewGalleryPageOptions(
-                              imageProvider: NetworkImage(pages[index]),
+                              imageProvider:
+                                  CachedNetworkImageProvider(pages[index]),
                               minScale: PhotoViewComputedScale.contained,
                               maxScale: PhotoViewComputedScale.covered * 2,
                               initialScale: PhotoViewComputedScale.contained,
+                              heroAttributes:
+                                  PhotoViewHeroAttributes(tag: pages[index]),
                               errorBuilder: (context, error, stackTrace) {
                                 return const Icon(Icons.image_not_supported);
                               },
+                              filterQuality:
+                                  FilterQuality.high, // Add anti-aliasing
                             );
                           },
                         ),

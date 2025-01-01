@@ -41,6 +41,25 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     });
   }
 
+  Future<void> saveFavoritesOrder() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('likedManga', favoriteMangaIds);
+  }
+
+  void onReorder(int oldIndex, int newIndex) {
+    setState(() {
+      if (newIndex > oldIndex) {
+        newIndex -= 1;
+      }
+      final item = favoriteMangaDetails.removeAt(oldIndex);
+      favoriteMangaDetails.insert(newIndex, item);
+
+      final id = favoriteMangaIds.removeAt(oldIndex);
+      favoriteMangaIds.insert(newIndex, id);
+    });
+    saveFavoritesOrder();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,7 +84,8 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                 style: TextStyle(color: Colors.white),
               ),
             )
-          : ListView.builder(
+          : ReorderableListView.builder(
+              onReorder: onReorder,
               itemCount: favoriteMangaDetails.length,
               itemBuilder: (context, index) {
                 final manga = favoriteMangaDetails[index];
@@ -81,6 +101,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                     .toList();
 
                 return GestureDetector(
+                  key: ValueKey(manga['id']),
                   onTap: () {
                     Navigator.push(
                       context,
@@ -94,15 +115,18 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                     color: const Color(0xFF2C2F33),
                     child: Row(
                       children: [
-                        CachedNetworkImage(
-                          imageUrl: imageUrl,
-                          width: 100,
-                          height: 150,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) =>
-                              const CircularProgressIndicator(),
-                          errorWidget: (context, url, error) =>
-                              const Icon(Icons.image_not_supported),
+                        ReorderableDragStartListener(
+                          index: index,
+                          child: CachedNetworkImage(
+                            imageUrl: imageUrl,
+                            width: 100,
+                            height: 150,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) =>
+                                const CircularProgressIndicator(),
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.image_not_supported),
+                          ),
                         ),
                         Expanded(
                           child: Padding(
