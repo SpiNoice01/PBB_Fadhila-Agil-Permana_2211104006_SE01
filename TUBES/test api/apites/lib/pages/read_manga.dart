@@ -26,9 +26,9 @@ class _ReadMangaScreenState extends State<ReadMangaScreen> {
   Color backgroundColor =
       const Color(0xFF23272A); // Default to Discord dark theme
   Color appBarColor =
-      const Color(0xFF23272A).withOpacity(0.8); // Default to Discord dark theme
-  Color textColor = Colors.white; // Default to white text
-  Color iconColor = Colors.white; // Default to white icons
+      const Color(0xFF23272A).withOpacity(1); // Default to Discord dark theme
+  Color textColor = const Color(0xFFB0B0B0); // Darker gray text
+  Color iconColor = const Color(0xFFB0B0B0); // Darker gray icons
   String? nextChapterId;
   late PageController _pageController;
 
@@ -116,8 +116,8 @@ class _ReadMangaScreenState extends State<ReadMangaScreen> {
           color.withOpacity(0.8); // Make the app bar color slightly brighter
       if (color == const Color(0xFF23272A)) {
         // Dark theme
-        textColor = Colors.white;
-        iconColor = Colors.white;
+        textColor = const Color(0xFFB0B0B0); // Darker gray text
+        iconColor = const Color(0xFFB0B0B0); // Darker gray icons
       } else {
         textColor = Colors.black;
         iconColor = Colors.black;
