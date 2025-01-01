@@ -138,6 +138,14 @@ class _MainScreenState extends State<MainScreen> {
     return likedManga.contains(mangaId);
   }
 
+  String truncateTitle(String title, int wordLimit) {
+    List<String> words = title.split(' ');
+    if (words.length > wordLimit) {
+      return '${words.sublist(0, wordLimit).join(' ')}...';
+    }
+    return title;
+  }
+
   @override
   void dispose() {
     _pagingController.dispose();
@@ -464,6 +472,7 @@ class _MainScreenState extends State<MainScreen> {
                               final title = manga['attributes']['title']
                                       ?['en'] ??
                                   "Unknown Title";
+                              final truncatedTitle = truncateTitle(title, 2);
                               final imageUrl = manga['coverUrl'] ??
                                   "https://via.placeholder.com/150";
 
@@ -495,7 +504,7 @@ class _MainScreenState extends State<MainScreen> {
                                       Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: Text(
-                                          title,
+                                          truncatedTitle,
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                           style: const TextStyle(
