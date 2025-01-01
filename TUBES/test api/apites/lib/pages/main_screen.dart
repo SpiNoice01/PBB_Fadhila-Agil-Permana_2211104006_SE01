@@ -472,7 +472,7 @@ class _MainScreenState extends State<MainScreen> {
                               final title = manga['attributes']['title']
                                       ?['en'] ??
                                   "Unknown Title";
-                              final truncatedTitle = truncateTitle(title, 2);
+                              final truncatedTitle = truncateTitle(title, 1);
                               final imageUrl = manga['coverUrl'] ??
                                   "https://via.placeholder.com/150";
 
