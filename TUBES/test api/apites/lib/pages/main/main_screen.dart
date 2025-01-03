@@ -11,6 +11,7 @@ import 'package:apites/pages/main/carousel_slider_widget.dart';
 import 'package:apites/pages/main/favorite_manga_list.dart';
 import 'package:apites/pages/main/manga_card.dart';
 import 'package:apites/pages/main/popular_carousel.dart';
+import 'package:get/get.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -126,15 +127,29 @@ class _MainScreenState extends State<MainScreen> {
   Future<void> toggleFavorite(String mangaId) async {
     final prefs = await SharedPreferences.getInstance();
     final likedManga = prefs.getStringList('likedManga') ?? [];
+    bool isFavorite;
     if (likedManga.contains(mangaId)) {
       likedManga.remove(mangaId);
+      isFavorite = false;
     } else {
       likedManga.add(mangaId);
+      isFavorite = true;
     }
     await prefs.setStringList('likedManga', likedManga);
     setState(() {
       fetchFavoriteManga(); // Refresh favorite manga list
     });
+
+    // Show GetX Snackbar at the top
+    Get.snackbar(
+      isFavorite ? 'Added to Favorites' : 'Removed from Favorites',
+      isFavorite
+          ? 'Manga has been added to your favorites.'
+          : 'Manga has been removed from your favorites.',
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.black.withOpacity(0.7),
+      colorText: Colors.white,
+    );
   }
 
   Future<bool> isFavorite(String mangaId) async {
