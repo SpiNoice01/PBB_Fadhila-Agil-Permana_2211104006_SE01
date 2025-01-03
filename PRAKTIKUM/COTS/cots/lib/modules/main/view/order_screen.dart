@@ -39,8 +39,8 @@ class OrderScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: InkWell(
               onTap: () {},
-              child: const Row(
-                children: [
+              child: Row(
+                children: const [
                   Icon(Icons.account_balance_wallet, color: Colors.blue),
                   SizedBox(width: 8),
                   Text("Transaksi Gopay", style: TextStyle(color: Colors.blue)),
@@ -63,9 +63,9 @@ class OrderScreen extends StatelessWidget {
                     leading:
                         const Icon(Icons.restaurant_menu, color: Colors.red),
                     title: const Text("Ayam Benjoss, kedungkandang"),
-                    subtitle: const Column(
+                    subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                      children: const [
                         Text("3 item\n2 Paket Ayam Bakar Jumbo"),
                         Text(
                           "Makanan sudah diantar\n28 Des 11.36",
@@ -78,14 +78,17 @@ class OrderScreen extends StatelessWidget {
                       children: [
                         const Text("Rp. 58.800"),
                         const SizedBox(height: 8),
-                        OutlinedButton(
-                          onPressed: () {},
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: Colors.green),
-                          ),
-                          child: const Text(
-                            "Pesan lagi",
-                            style: TextStyle(color: Colors.green),
+                        Flexible(
+                          child: OutlinedButton(
+                            onPressed: () {},
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: Colors.green),
+                            ),
+                            child: const Text(
+                              "Pesan lagi",
+                              style:
+                                  TextStyle(color: Colors.green, fontSize: 12),
+                            ),
                           ),
                         ),
                       ],
