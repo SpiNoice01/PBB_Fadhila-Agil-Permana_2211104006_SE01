@@ -21,12 +21,16 @@ class MangaDetailsHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (mangaDetails['coverUrl'] != null)
-          CachedNetworkImage(
-            imageUrl: mangaDetails['coverUrl'],
-            fit: BoxFit.cover,
-            placeholder: (context, url) => const CircularProgressIndicator(),
-            errorWidget: (context, url, error) =>
-                const Icon(Icons.image_not_supported),
+          ClipRRect(
+            borderRadius:
+                BorderRadius.circular(5.0), // Set the border radius here
+            child: CachedNetworkImage(
+              imageUrl: mangaDetails['coverUrl'],
+              fit: BoxFit.cover,
+              placeholder: (context, url) => const CircularProgressIndicator(),
+              errorWidget: (context, url, error) =>
+                  const Icon(Icons.image_not_supported),
+            ),
           ),
         const SizedBox(height: 16),
         Row(
