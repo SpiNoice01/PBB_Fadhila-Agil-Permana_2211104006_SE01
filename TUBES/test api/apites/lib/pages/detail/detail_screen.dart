@@ -17,8 +17,6 @@ class DetailScreen extends StatefulWidget {
 }
 
 class _DetailScreenState extends State<DetailScreen> {
-  final BookmarkController bookmarkController = Get.put(BookmarkController());
-
   Map<String, dynamic>? mangaDetails;
   Map<String, dynamic>? authorDetails;
   List<Map<String, dynamic>> chapters = [];
@@ -35,7 +33,6 @@ class _DetailScreenState extends State<DetailScreen> {
     super.initState();
     fetchMangaDetails();
     _scrollController.addListener(_scrollListener);
-    bookmarkController.checkIfLiked(widget.mangaId);
   }
 
   Future<void> fetchMangaDetails() async {
@@ -137,6 +134,43 @@ class _DetailScreenState extends State<DetailScreen> {
     _scrollController.jumpTo(_scrollPosition);
   }
 
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  Future<bool> checkIfLiked() async {
+    final prefs = await SharedPreferences.getInstance();
+    final likedManga = prefs.getStringList('likedManga') ?? [];
+    return likedManga.contains(widget.mangaId);
+  }
+
+  Future<void> toggleLike() async {
+    final prefs = await SharedPreferences.getInstance();
+    final likedManga = prefs.getStringList('likedManga') ?? [];
+    bool isFavorite;
+    if (await checkIfLiked()) {
+      likedManga.remove(widget.mangaId);
+      isFavorite = false;
+    } else {
+      likedManga.add(widget.mangaId);
+      isFavorite = true;
+    }
+    await prefs.setStringList('likedManga', likedManga);
+
+    // Show GetX Snackbar at the top
+    Get.snackbar(
+      isFavorite ? 'Added to Favorites' : 'Removed from Favorites',
+      isFavorite
+          ? 'Manga has been added to your favorites.'
+          : 'Manga has been removed from your favorites.',
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.black.withOpacity(0.7),
+      colorText: Colors.white,
+    );
+  }
+
   Future<Map<String, dynamic>?> getBookmark() async {
     final prefs = await SharedPreferences.getInstance();
     final chapterId = prefs.getString('bookmark_${widget.mangaId}');
@@ -159,12 +193,6 @@ class _DetailScreenState extends State<DetailScreen> {
     } else {
       return '${words.take(wordLimit).join(' ')}...';
     }
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
   }
 
   @override
@@ -226,13 +254,13 @@ class _DetailScreenState extends State<DetailScreen> {
                   else if (mangaDetails == null)
                     const Center(child: CircularProgressIndicator())
                   else ...[
-                    Obx(() => MangaDetailsHeader(
-                          mangaDetails: mangaDetails!,
-                          authorDetails: authorDetails,
-                          isLiked: bookmarkController.isLiked.value,
-                          toggleLike: () =>
-                              bookmarkController.toggleLike(widget.mangaId),
-                        )),
+                    MangaDetailsHeader(
+                      mangaDetails: mangaDetails!,
+                      authorDetails: authorDetails,
+                      isLiked:
+                          false, // Placeholder, will be updated by FutureBuilder
+                      toggleLike: toggleLike,
+                    ),
                     FutureBuilder<Map<String, dynamic>?>(
                       future: getBookmark(),
                       builder: (context, snapshot) {
@@ -292,64 +320,5 @@ class _DetailScreenState extends State<DetailScreen> {
         ),
       ),
     );
-  }
-}
-
-class BookmarkController extends GetxController {
-  var isLiked = false.obs;
-  var bookmarkedChapterId = ''.obs;
-  var bookmarkedChapterTitle = ''.obs;
-
-  get duration => null;
-
-  Future<void> checkIfLiked(String mangaId) async {
-    final prefs = await SharedPreferences.getInstance();
-    final likedManga = prefs.getStringList('likedManga') ?? [];
-    isLiked.value = likedManga.contains(mangaId);
-  }
-
-  Future<void> toggleLike(String mangaId) async {
-    final prefs = await SharedPreferences.getInstance();
-    final likedManga = prefs.getStringList('likedManga') ?? [];
-    if (isLiked.value) {
-      likedManga.remove(mangaId);
-    } else {
-      likedManga.add(mangaId);
-    }
-    await prefs.setStringList('likedManga', likedManga);
-    isLiked.value = !isLiked.value;
-
-    // Show GetX Snackbar at the bottom
-    Get.snackbar(
-      isLiked.value ? 'Added to Favorites' : 'Removed from Favorites',
-      isLiked.value
-          ? 'Manga has been added to your favorites.'
-          : 'Manga has been removed from your favorites.',
-      padding: const EdgeInsets.all(30),
-      snackPosition: SnackPosition.TOP,
-      backgroundColor: Colors.black.withOpacity(0.7),
-      colorText: Colors.white,
-      duration: const Duration(
-          milliseconds: 1000), // Short duration for spammable snackbar
-    );
-  }
-
-  Future<void> getBookmark(String mangaId) async {
-    final prefs = await SharedPreferences.getInstance();
-    final chapterId = prefs.getString('bookmark_$mangaId');
-    if (chapterId != null) {
-      bookmarkedChapterId.value = chapterId;
-      // Fetch chapter details to get the title
-      // Assuming MangaDexService.getChapterDetails is available
-      final chapterDetails = await MangaDexService.getChapterDetails(chapterId);
-      bookmarkedChapterTitle.value = chapterDetails['attributes']['title'] ??
-          'Chapter ${chapterDetails['attributes']['chapter']}';
-    }
-  }
-
-  Future<void> saveBookmark(String mangaId, String chapterId) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('bookmark_$mangaId', chapterId);
-    getBookmark(mangaId);
   }
 }
