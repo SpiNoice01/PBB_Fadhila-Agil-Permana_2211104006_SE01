@@ -150,7 +150,7 @@ class _MainScreenState extends State<MainScreen> {
       snackPosition: SnackPosition.TOP,
       backgroundColor: Colors.black.withOpacity(0.7),
       colorText: Colors.white,
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 800),
     );
   }
 
