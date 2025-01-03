@@ -65,43 +65,50 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Favorites',
-          style: TextStyle(
+    // ignore: deprecated_member_use
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pop(context, true); // Return true to indicate changes
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            'Favorites',
+            style: TextStyle(
+              color: Color.fromARGB(255, 237, 237, 237),
+            ),
+          ),
+          backgroundColor: const Color(0xFF2C2F33),
+          iconTheme: const IconThemeData(
             color: Color.fromARGB(255, 237, 237, 237),
           ),
         ),
-        backgroundColor: const Color(0xFF2C2F33),
-        iconTheme: const IconThemeData(
-          color: Color.fromARGB(255, 237, 237, 237),
-        ),
+        backgroundColor: const Color(0xFF23272A),
+        body: favoriteMangaDetails.isEmpty
+            ? const Center(
+                child: Text(
+                  'No favorites yet',
+                  style: TextStyle(color: Colors.white),
+                ),
+              )
+            : RefreshIndicator(
+                onRefresh: _refreshFavorites,
+                child: ReorderableListView.builder(
+                  onReorder: onReorder,
+                  itemCount: favoriteMangaDetails.length,
+                  itemBuilder: (context, index) {
+                    final manga = favoriteMangaDetails[index];
+                    return FavoriteMangaCard(
+                      key: ValueKey(manga['id']), // Add key here
+                      manga: manga,
+                      index: index,
+                      onReorder: onReorder,
+                    );
+                  },
+                ),
+              ),
       ),
-      backgroundColor: const Color(0xFF23272A),
-      body: favoriteMangaDetails.isEmpty
-          ? const Center(
-              child: Text(
-                'No favorites yet',
-                style: TextStyle(color: Colors.white),
-              ),
-            )
-          : RefreshIndicator(
-              onRefresh: _refreshFavorites,
-              child: ReorderableListView.builder(
-                onReorder: onReorder,
-                itemCount: favoriteMangaDetails.length,
-                itemBuilder: (context, index) {
-                  final manga = favoriteMangaDetails[index];
-                  return FavoriteMangaCard(
-                    key: ValueKey(manga['id']), // Add key here
-                    manga: manga,
-                    index: index,
-                    onReorder: onReorder,
-                  );
-                },
-              ),
-            ),
     );
   }
 }

@@ -207,13 +207,14 @@ class _MainScreenState extends State<MainScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.favorite, color: AppColors.mangaDex),
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => const FavoriteScreen(),
                 ),
               );
+              fetchFavoriteManga(); // Refresh favorite manga list when returning from FavoriteScreen
             },
           ),
           IconButton(
