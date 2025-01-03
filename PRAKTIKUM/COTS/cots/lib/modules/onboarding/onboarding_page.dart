@@ -2,7 +2,6 @@ import 'package:cots/design_system/colors_collection.dart';
 import 'package:cots/modules/login/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-// Import ColorCollection
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -36,12 +35,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 40.0), // Add gap to the left
+        title: Center(
           child: Image.asset(
             'lib/assets/logo.png',
-            width: 200, // Adjust the width as needed
-            height: 200, // Adjust the height as needed
+            width: 100, // Adjust the width as needed
+            height: 100, // Adjust the height as needed
           ), // Ganti dengan path logo Anda
         ),
       ),
@@ -94,7 +92,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 height: 12.0,
                 width: _currentPage == index ? 12.0 : 8.0,
                 decoration: BoxDecoration(
-                  color: _currentPage == index ? Colors.black : Colors.grey,
+                  color: _currentPage == index
+                      ? ColorCollection.color9
+                      : const Color.fromARGB(255, 101, 101, 101),
                   borderRadius: BorderRadius.circular(6.0),
                 ),
               );

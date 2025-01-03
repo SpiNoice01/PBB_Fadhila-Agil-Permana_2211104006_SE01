@@ -38,29 +38,50 @@ class _MainPageState extends State<MainPage> {
           child: TextField(
             decoration: InputDecoration(
               hintText: 'Search...',
-              border: InputBorder.none,
-              hintStyle: TextStyle(color: Color.fromARGB(137, 57, 57, 57)),
+              border: UnderlineInputBorder(
+                borderSide:
+                    BorderSide(color: Color.fromARGB(136, 203, 203, 203)),
+              ),
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                    color: Color.fromARGB(
+                        255, 103, 103, 103)), // Change to gray when focused
+              ),
+              hintStyle: TextStyle(color: Color.fromARGB(135, 102, 102, 102)),
               // Background color of the search field
             ),
             style: TextStyle(color: Color.fromARGB(255, 81, 81, 81)),
           ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.person),
-            onPressed: () {
-              // Action for person icon
-            },
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0, right: 20),
+            child: IconButton(
+              icon: const Icon(
+                Icons.person,
+                color: Color.fromRGBO(0, 108, 2, 1),
+                size: 40.0, // Increase the size of the icon
+              ),
+              onPressed: () {
+                // Action for person icon
+              },
+            ),
           ),
         ],
       ),
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
-        selectedItemColor:
-            Colors.greenAccent, // Warna hijau pastel untuk item yang dipilih
-        unselectedItemColor: Colors.greenAccent.withOpacity(
-            0.5), // Warna hijau pastel dengan opasitas untuk item yang tidak dipilih
+        selectedItemColor: const Color.fromRGBO(
+            0, 108, 2, 1), // Warna hijau pastel untuk item yang dipilih
+        unselectedItemColor: const Color.fromRGBO(48, 176, 88,
+            1), // Warna hijau pastel dengan opasitas untuk item yang tidak dipilih
+        selectedLabelStyle: const TextStyle(
+            color: Color.fromRGBO(
+                0, 108, 2, 1)), // Warna teks untuk item yang dipilih
+        unselectedLabelStyle: const TextStyle(
+            color: Color.fromRGBO(
+                48, 176, 88, 1)), // Warna teks untuk item yang tidak dipilih
         onTap: _onItemTapped,
         items: const [
           BottomNavigationBarItem(

@@ -6,7 +6,13 @@ class OrderScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Center(
-      child: Text('No History'),
+      child: Text(
+        'No History',
+        style: TextStyle(
+          color: Colors.grey,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
     );
   }
 }

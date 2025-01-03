@@ -28,12 +28,6 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
         title: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Image.asset('lib/assets/logo.png',
@@ -105,7 +99,7 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.only(bottom: 60.0, left: 20, right: 20),
         child: ElevatedButton(
           onPressed: () {
             if (_formKey.currentState!.validate()) {
