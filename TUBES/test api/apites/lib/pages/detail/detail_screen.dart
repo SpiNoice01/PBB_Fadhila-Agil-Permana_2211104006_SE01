@@ -210,8 +210,13 @@ class _DetailScreenState extends State<DetailScreen> {
       currentPage = 0;
       isError = false;
       isChapterError = false;
+      mangaDetails = null;
+      authorDetails = null;
+      chapters = [];
     });
     await fetchMangaDetails();
+    await getBookmark();
+    await checkIfLiked();
   }
 
   @override
