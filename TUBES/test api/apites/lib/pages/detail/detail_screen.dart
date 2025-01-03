@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:apites/pages/detail/manga_details_header.dart';
 import 'package:apites/pages/detail/manga_chapters_list.dart';
+import 'package:get/get.dart'; // Tambahkan ini
 
 class DetailScreen extends StatefulWidget {
   final String mangaId;
@@ -50,15 +51,29 @@ class _DetailScreenState extends State<DetailScreen> {
   Future<void> toggleLike() async {
     final prefs = await SharedPreferences.getInstance();
     final likedManga = prefs.getStringList('likedManga') ?? [];
+    bool isFavorite;
     if (isLiked) {
       likedManga.remove(widget.mangaId);
+      isFavorite = false;
     } else {
       likedManga.add(widget.mangaId);
+      isFavorite = true;
     }
     await prefs.setStringList('likedManga', likedManga);
     setState(() {
       isLiked = !isLiked;
     });
+
+    // Show GetX Snackbar at the top
+    Get.snackbar(
+      isFavorite ? 'Added to Favorites' : 'Removed from Favorites',
+      isFavorite
+          ? 'Manga has been added to your favorites.'
+          : 'Manga has been removed from your favorites.',
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.black.withOpacity(0.7),
+      colorText: Colors.white,
+    );
   }
 
   Future<void> saveMangaDetailsToCache(
