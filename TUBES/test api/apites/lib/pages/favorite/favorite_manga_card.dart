@@ -5,13 +5,11 @@ import 'package:apites/pages/detail/detail_screen.dart';
 class FavoriteMangaCard extends StatelessWidget {
   final Map<String, dynamic> manga;
   final int index;
-  final Function(int, int) onReorder;
 
   const FavoriteMangaCard({
     super.key,
     required this.manga,
     required this.index,
-    required this.onReorder,
   });
 
   @override

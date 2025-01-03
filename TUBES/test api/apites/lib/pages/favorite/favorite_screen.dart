@@ -100,10 +100,9 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                   itemBuilder: (context, index) {
                     final manga = favoriteMangaDetails[index];
                     return FavoriteMangaCard(
-                      key: ValueKey(manga['id']), // Add key here
+                      key: ValueKey(manga['id']),
                       manga: manga,
                       index: index,
-                      onReorder: onReorder,
                     );
                   },
                 ),
