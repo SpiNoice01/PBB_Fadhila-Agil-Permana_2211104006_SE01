@@ -157,8 +157,7 @@ class _DetailScreenState extends State<DetailScreen> {
     if (words.length <= wordLimit) {
       return title;
     } else {
-      // ignore: prefer_interpolation_to_compose_strings
-      return words.take(wordLimit).join(' ') + '...';
+      return '${words.take(wordLimit).join(' ')}...';
     }
   }
 
@@ -301,6 +300,8 @@ class BookmarkController extends GetxController {
   var bookmarkedChapterId = ''.obs;
   var bookmarkedChapterTitle = ''.obs;
 
+  get duration => null;
+
   Future<void> checkIfLiked(String mangaId) async {
     final prefs = await SharedPreferences.getInstance();
     final likedManga = prefs.getStringList('likedManga') ?? [];
@@ -318,15 +319,18 @@ class BookmarkController extends GetxController {
     await prefs.setStringList('likedManga', likedManga);
     isLiked.value = !isLiked.value;
 
-    // Show GetX Snackbar at the top
+    // Show GetX Snackbar at the bottom
     Get.snackbar(
       isLiked.value ? 'Added to Favorites' : 'Removed from Favorites',
       isLiked.value
           ? 'Manga has been added to your favorites.'
           : 'Manga has been removed from your favorites.',
+      padding: const EdgeInsets.all(30),
       snackPosition: SnackPosition.TOP,
       backgroundColor: Colors.black.withOpacity(0.7),
       colorText: Colors.white,
+      duration: const Duration(
+          milliseconds: 1000), // Short duration for spammable snackbar
     );
   }
 

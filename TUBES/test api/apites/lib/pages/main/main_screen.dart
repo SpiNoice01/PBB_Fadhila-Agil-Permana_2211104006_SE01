@@ -146,9 +146,11 @@ class _MainScreenState extends State<MainScreen> {
       isFavorite
           ? 'Manga has been added to your favorites.'
           : 'Manga has been removed from your favorites.',
+      padding: const EdgeInsets.all(30),
       snackPosition: SnackPosition.TOP,
       backgroundColor: Colors.black.withOpacity(0.7),
       colorText: Colors.white,
+      duration: const Duration(milliseconds: 1000),
     );
   }
 
