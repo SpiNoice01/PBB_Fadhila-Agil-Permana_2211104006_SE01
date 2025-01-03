@@ -142,6 +142,7 @@ class _MainScreenState extends State<MainScreen> {
 
     // Show GetX Snackbar at the top
     Get.snackbar(
+      margin: const EdgeInsets.all(40),
       isFavorite ? 'Added to Favorites' : 'Removed from Favorites',
       isFavorite
           ? 'Manga has been added to your favorites.'

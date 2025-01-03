@@ -320,6 +320,7 @@ class BookmarkController extends GetxController {
 
     // Show GetX Snackbar at the top
     Get.snackbar(
+        margin: const EdgeInsets.all(40),
         isLiked.value ? 'Added to Favorites' : 'Removed from Favorites',
         isLiked.value
             ? 'Manga has been added to your favorites.'
