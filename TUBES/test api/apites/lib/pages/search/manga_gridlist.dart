@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:apites/pages/detail/detail_screen.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class MangaGrid extends StatelessWidget {
   final List<Map<String, dynamic>> searchResults;
@@ -26,7 +27,12 @@ class MangaGrid extends StatelessWidget {
         itemCount: searchResults.length + (isLoadingMore ? 1 : 0),
         itemBuilder: (context, index) {
           if (index == searchResults.length) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: SpinKitFadingCircle(
+                color: Colors.white,
+                size: 50.0,
+              ),
+            );
           }
           final manga = searchResults[index];
 
@@ -58,8 +64,12 @@ class MangaGrid extends StatelessWidget {
                       width: double.infinity,
                       fit: BoxFit.cover,
                       alignment: Alignment.topCenter,
-                      placeholder: (context, url) =>
-                          const CircularProgressIndicator(),
+                      placeholder: (context, url) => const Center(
+                        child: SpinKitFadingCircle(
+                          color: Colors.white,
+                          size: 50.0,
+                        ),
+                      ),
                       errorWidget: (context, url, error) =>
                           const Icon(Icons.image_not_supported),
                       imageBuilder: (context, imageProvider) => ClipRRect(

@@ -3,6 +3,7 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:apites/collection/colors.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class MangaPageViewer extends StatelessWidget {
   final List<String> pages;
@@ -100,44 +101,45 @@ class MangaPageViewer extends StatelessWidget {
         itemBuilder: (context, index) {
           if (index == pages.length) {
             return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'End of Chapter',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.mangaDex,
-                      ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'End of Chapter',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.mangaDex,
                     ),
-                    const SizedBox(height: 16),
-                    if (nextChapterId != null)
-                      ElevatedButton(
-                        onPressed: readNextChapter,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.mangaDex,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 24, vertical: 12),
-                          textStyle: const TextStyle(fontSize: 18),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+                  ),
+                  const SizedBox(height: 16),
+                  if (nextChapterId != null)
+                    ElevatedButton(
+                      onPressed: readNextChapter,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.mangaDex,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 12),
+                        textStyle: const TextStyle(fontSize: 18),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Text('Read Next Chapter'),
                       ),
-                  ],
-                ),
+                      child: const Text('Read Next Chapter'),
+                    ),
+                ],
               ),
             );
           }
           return CachedNetworkImage(
             imageUrl: pages[index],
-            placeholder: (context, url) =>
-                const Center(child: CircularProgressIndicator()),
+            placeholder: (context, url) => const Center(
+              child: SpinKitFadingCircle(
+                color: Colors.white,
+                size: 50.0,
+              ),
+            ),
             errorWidget: (context, url, error) =>
                 const Icon(Icons.image_not_supported),
             fit: BoxFit.contain,

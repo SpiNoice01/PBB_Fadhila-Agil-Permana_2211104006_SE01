@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:apites/pages/detail/detail_screen.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class FavoriteMangaList extends StatelessWidget {
   final List<Map<String, dynamic>> favoriteMangaList;
@@ -68,8 +69,12 @@ class FavoriteMangaList extends StatelessWidget {
                             width: 100,
                             height: 150,
                             fit: BoxFit.cover,
-                            placeholder: (context, url) =>
-                                const CircularProgressIndicator(),
+                            placeholder: (context, url) => const Center(
+                              child: SpinKitFadingCircle(
+                                color: Colors.white,
+                                size: 50.0,
+                              ),
+                            ),
                             errorWidget: (context, url, error) =>
                                 const Icon(Icons.image_not_supported),
                           ),

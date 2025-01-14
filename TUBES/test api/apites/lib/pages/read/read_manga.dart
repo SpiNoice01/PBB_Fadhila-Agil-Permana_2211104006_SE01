@@ -3,6 +3,7 @@ import 'package:apites/services/mangadex_services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:apites/pages/read/manga_page_viewer.dart';
 import 'package:apites/pages/read/manga_navigation_bar.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class ReadMangaScreen extends StatefulWidget {
   final String mangaId;
@@ -196,7 +197,12 @@ class _ReadMangaScreenState extends State<ReadMangaScreen> {
         ],
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: SpinKitFadingCircle(
+                color: Colors.white,
+                size: 50.0,
+              ),
+            )
           : pages.isEmpty
               ? const Center(child: Text('No pages available'))
               : Container(

@@ -3,6 +3,7 @@ import 'package:apites/services/mangadex_services.dart';
 import 'package:apites/pages/search/search_bar.dart' as custom;
 import 'package:apites/pages/search/genre_sort.dart';
 import 'package:apites/pages/search/manga_gridlist.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -202,7 +203,12 @@ class _SearchScreenState extends State<SearchScreen> {
               },
             ),
             isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(
+                    child: SpinKitFadingCircle(
+                      color: Colors.white,
+                      size: 50.0,
+                    ),
+                  )
                 : MangaGrid(
                     searchResults: searchResults,
                     isLoadingMore: isLoadingMore,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:apites/pages/detail/detail_screen.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class PopularCarousel extends StatelessWidget {
   final List<Map<String, dynamic>> popularMangaList;
@@ -41,8 +42,12 @@ class PopularCarousel extends StatelessWidget {
                       height: 250,
                       fit: BoxFit.cover,
                       alignment: Alignment.topCenter,
-                      placeholder: (context, url) =>
-                          const CircularProgressIndicator(),
+                      placeholder: (context, url) => const Center(
+                        child: SpinKitFadingCircle(
+                          color: Colors.white,
+                          size: 50.0,
+                        ),
+                      ),
                       errorWidget: (context, url, error) =>
                           const Icon(Icons.image_not_supported),
                     ),
