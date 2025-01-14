@@ -19,6 +19,7 @@ class _ReadMangaScreenState extends State<ReadMangaScreen> {
   bool isLoading = true;
   int currentPage = 0;
   bool isLiked = false;
+  bool isVerticalScrollMode = false;
   String chapterTitle = '';
   String chapterNumber = '';
   Color backgroundColor = const Color(0xFF2C2F33); // Discord black background
@@ -90,6 +91,13 @@ class _ReadMangaScreenState extends State<ReadMangaScreen> {
       });
       print("Error fetching manga pages: $e");
     }
+  }
+
+  Future<void> _refresh() async {
+    setState(() {
+      isLoading = true;
+    });
+    await fetchMangaPages();
   }
 
   void _nextPage() {
@@ -174,6 +182,17 @@ class _ReadMangaScreenState extends State<ReadMangaScreen> {
             ],
             icon: Icon(Icons.color_lens, color: iconColor),
           ),
+          IconButton(
+            icon: Icon(
+              isVerticalScrollMode ? Icons.view_carousel : Icons.view_stream,
+              color: iconColor,
+            ),
+            onPressed: () {
+              setState(() {
+                isVerticalScrollMode = !isVerticalScrollMode;
+              });
+            },
+          ),
         ],
       ),
       body: isLoading
@@ -196,16 +215,19 @@ class _ReadMangaScreenState extends State<ReadMangaScreen> {
                           },
                           nextChapterId: nextChapterId,
                           readNextChapter: _readNextChapter,
+                          isVerticalScrollMode: isVerticalScrollMode,
+                          onRefresh: _refresh,
                         ),
                       ),
-                      MangaNavigationBar(
-                        currentPage: currentPage,
-                        totalPages: pages.length,
-                        previousPage: _previousPage,
-                        nextPage: _nextPage,
-                        iconColor: iconColor,
-                        textColor: textColor,
-                      ),
+                      if (!isVerticalScrollMode)
+                        MangaNavigationBar(
+                          currentPage: currentPage,
+                          totalPages: pages.length,
+                          previousPage: _previousPage,
+                          nextPage: _nextPage,
+                          iconColor: iconColor,
+                          textColor: textColor,
+                        ),
                     ],
                   ),
                 ),
